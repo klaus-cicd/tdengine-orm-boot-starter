@@ -201,15 +201,15 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
      * @return {@link LambdaTdQueryWrapper }<{@link T }>
      */
     public LambdaTdQueryWrapper<T> between(SFunction<T, ?> sFunction, Object leftValue, Object rightValue) {
-        if (StrUtil.isNotBlank(getWhere())) {
-            getWhere().append(SqlConstant.AND);
+        if (StrUtil.isNotBlank(where)) {
+            where.append(SqlConstant.AND);
         }
 
         String columnName = getColumnName(sFunction);
         String leftParamName = getParamName(columnName + "__left");
         String rightParamName = getParamName(columnName + "__right");
 
-        getWhere()
+        where
                 .append(SqlConstant.LEFT_BRACKET)
                 .append(columnName)
                 .append(SqlConstant.LE)
@@ -230,7 +230,7 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     private String getParamName(String fieldName) {
         int index = 0;
         while (true) {
-            if (getWhere().toString().contains(SqlConstant.COLON + buildParam(fieldName, index))) {
+            if (where.toString().contains(SqlConstant.COLON + buildParam(fieldName, index))) {
                 ++index;
             } else {
                 return buildParam(fieldName, index);

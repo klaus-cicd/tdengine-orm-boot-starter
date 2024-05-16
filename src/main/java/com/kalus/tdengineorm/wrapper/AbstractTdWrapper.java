@@ -7,8 +7,9 @@ import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import com.klaus.fd.constant.SqlConstant;
 import com.klaus.fd.utils.BeanUtil;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.core.env.Environment;
 
 import java.util.HashMap;
@@ -18,16 +19,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Klaus
  */
-@Data
 @NoArgsConstructor
 public abstract class AbstractTdWrapper<T> {
 
-    private StringBuilder finalSql = new StringBuilder();
-    private String tbName;
-    private StringBuilder where = new StringBuilder();
-    private Map<String, Object> paramsMap = new HashMap<>(16);
-    private Class<T> entityClass;
+    protected StringBuilder finalSql = new StringBuilder();
+    protected String tbName;
+    protected StringBuilder where = new StringBuilder();
     protected AtomicInteger paramNameSeq;
+    @Getter
+    @Setter
+    private Class<T> entityClass;
+    @Getter
+    @Setter
+    private Map<String, Object> paramsMap = new HashMap<>(16);
+
 
     public AbstractTdWrapper(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -37,23 +42,8 @@ public abstract class AbstractTdWrapper<T> {
     protected abstract TdWrapperTypeEnum type();
 
 
-    /**
-     * 自定义TB名称, 比如嵌套查询时
-     *
-     * @param innerSql 内层Sql
-     */
-    protected abstract void changeInnerTbName(String innerSql);
-
-    /**
-     * 自定义TB名称, 比如嵌套查询时
-     *
-     * @param innerSql 内层Sql
-     */
-    protected abstract void changeOuterTbName(String innerSql);
-
-
     protected void buildFrom() {
-        getFinalSql().append(SqlConstant.FROM).append(getTbName()).append(SqlConstant.BLANK);
+        finalSql.append(SqlConstant.FROM).append(tbName).append(SqlConstant.BLANK);
     }
 
     protected void initTbName() {

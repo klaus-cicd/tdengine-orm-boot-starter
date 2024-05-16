@@ -11,7 +11,6 @@ import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.klaus.fd.constant.SqlConstant;
 import com.klaus.fd.utils.AssertUtil;
-import lombok.EqualsAndHashCode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 /**
  * @author Klaus
  */
-@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
 
     protected String limit;
@@ -46,39 +44,30 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         return TdWrapperTypeEnum.QUERY;
     }
 
-    @Override
-    protected void changeInnerTbName(String innerSql) {
-        setTbName(" (" + innerSql + ") t ");
-    }
-
-    @Override
-    protected void changeOuterTbName(String outerSql) {
-        setTbName(" (" + outerSql + ") t ");
-    }
 
     public String getSql() {
         buildSelect();
         buildFrom();
-        if (StrUtil.isNotBlank(getWhere())) {
-            getFinalSql().append(SqlConstant.WHERE).append(getWhere());
+        if (StrUtil.isNotBlank(where)) {
+            finalSql.append(SqlConstant.WHERE).append(where);
         }
 
         if (StrUtil.isNotBlank(windowFunc)) {
-            getFinalSql().append(windowFunc);
+            finalSql.append(windowFunc);
         }
         if (StrUtil.isNotBlank(orderBy)) {
-            getFinalSql().append(orderBy);
+            finalSql.append(orderBy);
         }
         if (StrUtil.isNotBlank(limit)) {
-            getFinalSql().append(limit);
+            finalSql.append(limit);
         }
-        StringBuilder innerSb = getFinalSql();
+        StringBuilder innerSb = finalSql;
         if (outerQueryWrapper != null) {
-            outerQueryWrapper.setTbName(" (" + innerSb.append(") t").append(layer).append(SqlConstant.BLANK));
+            outerQueryWrapper.tbName = " (" + innerSb.append(") t").append(layer).append(SqlConstant.BLANK);
             return outerQueryWrapper.getSql();
         }
 
-        return getFinalSql().toString();
+        return finalSql.toString();
     }
 
 
@@ -92,12 +81,12 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
 
     private void buildSelect() {
         Assert.notEmpty(selectColumnNames, "【TDengineQueryWrapper】查询字段不可为空");
-        getFinalSql().append(SqlConstant.SELECT);
+        finalSql.append(SqlConstant.SELECT);
         for (int i = 1; i <= selectColumnNames.length; i++) {
             if (i > 1) {
-                getFinalSql().append(SqlConstant.COMMA);
+                finalSql.append(SqlConstant.COMMA);
             }
-            getFinalSql().append(selectColumnNames[i - 1]);
+            finalSql.append(selectColumnNames[i - 1]);
         }
     }
 
@@ -151,10 +140,10 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
     }
 
     protected void addWhereParam(Object value, String columnName, String paramName, String symbol) {
-        if (StrUtil.isNotBlank(getWhere())) {
-            getWhere().append(SqlConstant.AND);
+        if (StrUtil.isNotBlank(where)) {
+            where.append(SqlConstant.AND);
         }
-        getWhere()
+        where
                 .append(columnName)
                 .append(symbol)
                 .append(SqlConstant.COLON)

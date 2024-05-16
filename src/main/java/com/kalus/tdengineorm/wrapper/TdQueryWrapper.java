@@ -15,7 +15,6 @@ import java.util.function.Consumer;
  * @author Klaus
  * @date 2024/05/11
  */
-@EqualsAndHashCode(callSuper = true)
 public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
     public TdQueryWrapper(Class<T> entityClass) {
@@ -51,22 +50,22 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     public TdQueryWrapper<T> from(String tbName) {
-        setTbName(tbName);
+        super.tbName = tbName;
         return this;
     }
 
     public TdQueryWrapper<T> eq(String columnName, Object value) {
-        if (StrUtil.isNotBlank(getWhere())) {
-            getWhere().append(SqlConstant.AND);
+        if (StrUtil.isNotBlank(where)) {
+            where.append(SqlConstant.AND);
         }
         String paramName = genParamName();
-        this.getWhere().append(columnName).append(SqlConstant.EQUAL).append(SqlConstant.COLON).append(paramName);
+        this.where.append(columnName).append(SqlConstant.EQUAL).append(SqlConstant.COLON).append(paramName);
         getParamsMap().put(paramName, value);
         return this;
     }
 
     public TdQueryWrapper<T> and() {
-        this.getWhere().append(SqlConstant.BLANK).append(SqlConstant.AND).append(SqlConstant.BLANK);
+        this.where.append(SqlConstant.BLANK).append(SqlConstant.AND).append(SqlConstant.BLANK);
         return this;
     }
 
@@ -76,7 +75,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     public TdQueryWrapper<T> or(String columnName, Object value) {
-        this.getWhere().append(SqlConstant.BLANK)
+        this.where.append(SqlConstant.BLANK)
                 .append(SqlConstant.OR)
                 .append(SqlConstant.BLANK);
         return this;
