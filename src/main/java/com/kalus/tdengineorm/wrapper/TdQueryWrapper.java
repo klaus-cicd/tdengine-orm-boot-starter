@@ -1,8 +1,7 @@
 package com.kalus.tdengineorm.wrapper;
 
 import cn.hutool.core.util.StrUtil;
-import com.kalus.tdengineorm.constant.TdSqlConstant;
-import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
+import com.kalus.tdengineorm.enums.TdTwoParamsSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.klaus.fd.constant.SqlConstant;
 import lombok.EqualsAndHashCode;
@@ -33,42 +32,23 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> first(String... firstColumnNames) {
-        String[] array = Arrays.stream(firstColumnNames)
-                .map(column -> TdSqlConstant.FIRST + SqlConstant.LEFT_BRACKET + column + SqlConstant.RIGHT_BRACKET + SqlConstant.BLANK + column)
+    public final TdQueryWrapper<T> selectFunc(TdTwoParamsSelectFuncEnum selectFuncEnum, String... columnNames) {
+        String[] array = Arrays.stream(columnNames)
+                .map(columnName -> buildAggregationFunc(selectFuncEnum, columnName, columnName))
                 .toArray(String[]::new);
         addColumnNames(array);
         return this;
     }
 
-    public TdQueryWrapper<T> last(String... columns) {
-        String[] array = Arrays.stream(columns)
-                .map(column -> TdSqlConstant.LAST + SqlConstant.LEFT_BRACKET + column + SqlConstant.RIGHT_BRACKET + SqlConstant.BLANK + column)
-                .toArray(String[]::new);
-        addColumnNames(array);
+    public TdQueryWrapper<T> selectFunc(TdTwoParamsSelectFuncEnum selectFuncEnum, String columnName) {
+        addColumnName(buildAggregationFunc(selectFuncEnum, columnName, columnName));
         return this;
     }
 
-    public TdQueryWrapper<T> firstAlias(String column, String aliasColumn) {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.FIRST, column, aliasColumn));
+    public TdQueryWrapper<T> selectFunc(TdTwoParamsSelectFuncEnum selectFuncEnum, String columnName, String aliasColumnName) {
+        addColumnName(buildAggregationFunc(selectFuncEnum, columnName, aliasColumnName));
         return this;
     }
-
-    public TdQueryWrapper<T> lastAlias(String column, String aliasColumn) {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.LAST, column, aliasColumn));
-        return this;
-    }
-
-    public TdQueryWrapper<T> count() {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.COUNT, "1", "count"));
-        return this;
-    }
-
-    public TdQueryWrapper<T> avg(String column, String aliasColumn) {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.AVG, column, aliasColumn));
-        return this;
-    }
-
 
     public TdQueryWrapper<T> from(String tbName) {
         setTbName(tbName);
@@ -99,6 +79,17 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         this.getWhere().append(SqlConstant.BLANK)
                 .append(SqlConstant.OR)
                 .append(SqlConstant.BLANK);
+        return this;
+    }
+
+    public TdQueryWrapper<T> ne(String columnName, Object value) {
+        addWhereParam(value, columnName, columnName, SqlConstant.NE);
+        return this;
+    }
+
+
+    public TdQueryWrapper<T> notNull(String columnName, Object value) {
+        addWhereParam(value, columnName, columnName, SqlConstant.IS_NOT_NULL);
         return this;
     }
 

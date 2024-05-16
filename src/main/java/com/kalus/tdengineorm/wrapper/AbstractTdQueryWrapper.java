@@ -4,7 +4,7 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
-import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
+import com.kalus.tdengineorm.enums.TdTwoParamsSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
@@ -146,8 +146,8 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         selectColumnNames = ArrayUtil.addAll(selectColumnNames, columnNames);
     }
 
-    protected String buildAggregationFunc(TdSelectFuncEnum tdSelectFuncEnum, String columnName, String aliasName) {
-        return StrUtil.format(tdSelectFuncEnum.getFunc(), columnName, aliasName);
+    protected String buildAggregationFunc(TdTwoParamsSelectFuncEnum tdTwoParamsSelectFuncEnum, String columnName, String aliasName) {
+        return StrUtil.format(tdTwoParamsSelectFuncEnum.getFunc(), columnName, aliasName);
     }
 
     protected void addWhereParam(Object value, String columnName, String paramName, String symbol) {

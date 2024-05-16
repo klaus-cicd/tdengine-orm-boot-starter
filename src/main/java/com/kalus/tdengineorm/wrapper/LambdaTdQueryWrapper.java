@@ -8,8 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.LambdaMeta;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
-import com.kalus.tdengineorm.constant.TdSqlConstant;
-import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
+import com.kalus.tdengineorm.enums.TdTwoParamsSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
@@ -21,7 +20,6 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author Klaus
@@ -55,46 +53,25 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     @SafeVarargs
-    public final LambdaTdQueryWrapper<T> first(SFunction<T, ?>... functions) {
+    public final LambdaTdQueryWrapper<T> selectFunc(TdTwoParamsSelectFuncEnum selectFuncEnum, SFunction<T, ?>... functions) {
         String[] array = Arrays.stream(functions)
                 .map(sFunction -> {
-                    String column = getColumnName(sFunction);
-                    return TdSqlConstant.FIRST + SqlConstant.LEFT_BRACKET + column + SqlConstant.RIGHT_BRACKET + SqlConstant.BLANK + column;
+                    String columnName = getColumnName(sFunction);
+                    return buildAggregationFunc(selectFuncEnum, columnName, columnName);
                 })
                 .toArray(String[]::new);
         addColumnNames(array);
         return this;
     }
 
-    @SafeVarargs
-    public final LambdaTdQueryWrapper<T> last(SFunction<T, ?>... functions) {
-        String[] array = Arrays.stream(functions)
-                .map(sFunction -> {
-                    String column = getColumnName(sFunction);
-                    return TdSqlConstant.LAST + SqlConstant.LEFT_BRACKET + column + SqlConstant.RIGHT_BRACKET + SqlConstant.BLANK + column;
-                })
-                .toArray(String[]::new);
-        addColumnNames(array);
+    public LambdaTdQueryWrapper<T> selectFunc(TdTwoParamsSelectFuncEnum selectFuncEnum, SFunction<T, ?> column) {
+        String columnName = getColumnName(column);
+        addColumnName(buildAggregationFunc(selectFuncEnum, columnName, columnName));
         return this;
     }
 
-    public <R> LambdaTdQueryWrapper<T> firstAlias(SFunction<T, ?> column, SFunction<R, ?> aliasColumn) {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.FIRST, getColumnName(column), getColumnName(aliasColumn)));
-        return this;
-    }
-
-    public LambdaTdQueryWrapper<T> lastAlias(SFunction<T, ?> column, SFunction<?, ?> aliasColumn) {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.LAST, getColumnName(column), getColumnName(aliasColumn)));
-        return this;
-    }
-
-    public LambdaTdQueryWrapper<T> count() {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.COUNT, "1", "count"));
-        return this;
-    }
-
-    public LambdaTdQueryWrapper<T> avg(SFunction<T, ?> column, SFunction<?, ?> aliasColumn) {
-        addColumnName(buildAggregationFunc(TdSelectFuncEnum.AVG, getColumnName(column), getColumnName(aliasColumn)));
+    public LambdaTdQueryWrapper<T> selectFunc(TdTwoParamsSelectFuncEnum selectFuncEnum, SFunction<T, ?> column, SFunction<?, ?> aliasColumn) {
+        addColumnName(buildAggregationFunc(selectFuncEnum, getColumnName(column), getColumnName(aliasColumn)));
         return this;
     }
 
@@ -107,14 +84,6 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return PropertyNamer.methodToProperty(sFunction.getImplMethodName());
     }
 
-    private String getColumnName(SFunction<?, ?> sFunction) {
-        String fieldName = getFieldName(LambdaUtils.extract(sFunction));
-        Field field = ClassUtil.getField(getEntityClass(), fieldName);
-        Assert.notNull(field, TdOrmExceptionCode.NO_FILED.getMsg());
-
-        String tableFiledAnnoValue = AnnotationUtil.getAnnotationValue(field, TableField.class, "value");
-        return StrUtil.isNotBlank(tableFiledAnnoValue) ? tableFiledAnnoValue : StrUtil.toUnderlineCase(fieldName);
-    }
 
     public LambdaTdQueryWrapper<T> eq(SFunction<T, ?> sFunction, Object value) {
         String columnName = getColumnName(sFunction);
@@ -122,6 +91,19 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
+
+    public LambdaTdQueryWrapper<T> ne(SFunction<T, ?> sFunction, Object value) {
+        String columnName = getColumnName(sFunction);
+        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.NE);
+        return this;
+    }
+
+
+    public LambdaTdQueryWrapper<T> notNull(SFunction<T, ?> sFunction, Object value) {
+        String columnName = getColumnName(sFunction);
+        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.IS_NOT_NULL);
+        return this;
+    }
 
     public LambdaTdQueryWrapper<T> intervalWindow(String interval) {
         doWindowFunc(TdWindFuncTypeEnum.INTERVAL, interval);
@@ -142,6 +124,7 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         orderBy.append(getColumnName(sFunction));
         return this;
     }
+
 
     public LambdaTdQueryWrapper<T> orderByDesc(SFunction<T, ?> sFunction) {
         if (StrUtil.isNotBlank(orderBy)) {
@@ -257,5 +240,14 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
     private String buildParam(String fieldName, int index) {
         return fieldName + SqlConstant.UNDERLINE + SqlConstant.UNDERLINE + layer + SqlConstant.UNDERLINE + index;
+    }
+
+    private String getColumnName(SFunction<?, ?> sFunction) {
+        String fieldName = getFieldName(LambdaUtils.extract(sFunction));
+        Field field = ClassUtil.getField(getEntityClass(), fieldName);
+        Assert.notNull(field, TdOrmExceptionCode.NO_FILED.getMsg());
+
+        String tableFiledAnnoValue = AnnotationUtil.getAnnotationValue(field, TableField.class, "value");
+        return StrUtil.isNotBlank(tableFiledAnnoValue) ? tableFiledAnnoValue : StrUtil.toUnderlineCase(fieldName);
     }
 }
