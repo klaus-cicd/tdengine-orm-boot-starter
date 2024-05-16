@@ -7,8 +7,10 @@ import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
+import com.kalus.tdengineorm.exception.TdOrmException;
+import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.klaus.fd.constant.SqlConstant;
-import lombok.Data;
+import com.klaus.fd.utils.AssertUtil;
 import lombok.EqualsAndHashCode;
 
 import java.util.Arrays;
@@ -18,22 +20,22 @@ import java.util.stream.Collectors;
 /**
  * @author Klaus
  */
-@Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
 
-    private String limit;
-    private String[] selectColumnNames;
-    private String windowFunc;
-    private final StringBuilder orderBy = new StringBuilder();
+    protected String limit;
+    protected String[] selectColumnNames;
+    protected String windowFunc;
+    protected final StringBuilder orderBy = new StringBuilder();
     /**
-     * 内层的Wrapper对象
+     * 外层的Wrapper对象
      */
-    private AbstractTdQueryWrapper<T> innerQueryWrapper;
+    protected AbstractTdQueryWrapper<T> outerQueryWrapper;
+
     /**
      * 当前层, 最内层为0, 向上递增
      */
-    private int layer;
+    protected int layer;
 
     public AbstractTdQueryWrapper(Class<T> entityClass) {
         super(entityClass);
@@ -49,6 +51,11 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         setTbName(" (" + innerSql + ") t ");
     }
 
+    @Override
+    protected void changeOuterTbName(String outerSql) {
+        setTbName(" (" + outerSql + ") t ");
+    }
+
     public String getSql() {
         buildSelect();
         buildFrom();
@@ -56,14 +63,19 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
             getFinalSql().append(SqlConstant.WHERE).append(getWhere());
         }
 
-        if (StrUtil.isNotBlank(getWindowFunc())) {
-            getFinalSql().append(getWindowFunc());
+        if (StrUtil.isNotBlank(windowFunc)) {
+            getFinalSql().append(windowFunc);
         }
-        if (StrUtil.isNotBlank(getOrderBy())) {
-            getFinalSql().append(getOrderBy());
+        if (StrUtil.isNotBlank(orderBy)) {
+            getFinalSql().append(orderBy);
         }
-        if (StrUtil.isNotBlank(getLimit())) {
-            getFinalSql().append(getLimit());
+        if (StrUtil.isNotBlank(limit)) {
+            getFinalSql().append(limit);
+        }
+        StringBuilder innerSb = getFinalSql();
+        if (outerQueryWrapper != null) {
+            outerQueryWrapper.setTbName(" (" + innerSb.append(") t").append(layer).append(SqlConstant.BLANK));
+            return outerQueryWrapper.getSql();
         }
 
         return getFinalSql().toString();
@@ -71,46 +83,49 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
 
 
     protected void doLimit(String limitCount) {
-        setLimit(limitCount);
+        limit = limitCount;
     }
 
     protected void doLimit(int pageNo, int pageSize) {
-        setLimit(SqlConstant.LIMIT + (pageNo - 1) + SqlConstant.COMMA + pageSize);
+        limit = SqlConstant.LIMIT + (pageNo - 1) + SqlConstant.COMMA + pageSize;
     }
 
     private void buildSelect() {
-        Assert.notEmpty(getSelectColumnNames(), "【TDengineQueryWrapper】查询字段不可为空");
+        Assert.notEmpty(selectColumnNames, "【TDengineQueryWrapper】查询字段不可为空");
         getFinalSql().append(SqlConstant.SELECT);
-        for (int i = 1; i <= getSelectColumnNames().length; i++) {
+        for (int i = 1; i <= selectColumnNames.length; i++) {
             if (i > 1) {
                 getFinalSql().append(SqlConstant.COMMA);
             }
-            getFinalSql().append(getSelectColumnNames()[i - 1]);
+            getFinalSql().append(selectColumnNames[i - 1]);
         }
     }
 
     protected void doSelectAll() {
-        setSelectColumnNames(new String[]{SqlConstant.ALL});
+        selectColumnNames = new String[]{SqlConstant.ALL};
     }
 
     protected void doWindowFunc(TdWindFuncTypeEnum funcType, String winFuncValue) {
         Assert.isNull(windowFunc, "[TDengineQueryWrapper] 不可重复设置窗口函数");
-        setWindowFunc(buildWindowFunc(funcType));
-        getParamsMap().put(TdSqlConstant.WINDOW_FUNC_PARAM_NAME + getLayer(), winFuncValue);
+        windowFunc = buildWindowFunc(funcType);
+        getParamsMap().put(TdSqlConstant.WINDOW_FUNC_PARAM_NAME + layer, winFuncValue);
     }
 
     protected String buildWindowFunc(TdWindFuncTypeEnum tdWindFuncTypeEnum) {
         return tdWindFuncTypeEnum.getKey() + SqlConstant.LEFT_BRACKET
-                + SqlConstant.COLON + TdSqlConstant.WINDOW_FUNC_PARAM_NAME + getLayer()
+                + SqlConstant.COLON + TdSqlConstant.WINDOW_FUNC_PARAM_NAME + layer
                 + SqlConstant.RIGHT_BRACKET;
     }
 
-    protected void doOuterWrapper(AbstractTdQueryWrapper<T> outerWrapper) {
-        outerWrapper.setInnerQueryWrapper(this);
-        outerWrapper.changeInnerTbName(this.getSql());
-        outerWrapper.setLayer(++layer);
-        outerWrapper.getParamsMap().putAll(this.getParamsMap());
+
+    protected void doInnerWrapper(AbstractTdQueryWrapper<T> innerWrapper) {
+        // 限制最多调用一次
+        AssertUtil.isTrue(layer == 0, new TdOrmException(TdOrmExceptionCode.SQL_LAYER_OUT_LIMITED));
+        innerWrapper.layer = 1;
+        innerWrapper.outerQueryWrapper = this;
+        innerWrapper.getParamsMap().putAll(this.getParamsMap());
     }
+
 
     protected void addColumnName(String columnName) {
         if (ArrayUtil.isEmpty(selectColumnNames)) {

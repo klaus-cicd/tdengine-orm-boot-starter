@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Tdengine查询包装
@@ -116,29 +115,31 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     public TdQueryWrapper<T> orderByAsc(String columnName) {
-        if (StrUtil.isNotBlank(getOrderBy())) {
-            getOrderBy().append(SqlConstant.COMMA);
+        if (StrUtil.isNotBlank(orderBy)) {
+            orderBy.append(SqlConstant.COMMA);
         }
-        getOrderBy().append(columnName);
+        orderBy.append(columnName);
         return this;
     }
 
 
     public TdQueryWrapper<T> orderByDesc(String columnName) {
-        if (StrUtil.isNotBlank(getOrderBy())) {
-            getOrderBy().append(SqlConstant.COMMA);
+        if (StrUtil.isNotBlank(orderBy)) {
+            orderBy.append(SqlConstant.COMMA);
         }
-        getOrderBy().append(SqlConstant.ORDER_BY)
+        orderBy.append(SqlConstant.ORDER_BY)
                 .append(columnName)
                 .append(SqlConstant.BLANK)
                 .append(SqlConstant.DESC);
         return this;
     }
 
-    public TdQueryWrapper<T> outerQueryWrapper(Supplier<TdQueryWrapper<T>> supplier) {
-        TdQueryWrapper<T> outerWrapper = supplier.get();
-        doOuterWrapper(outerWrapper);
-        return outerWrapper;
+
+    public TdQueryWrapper<T> innerQueryWrapper(Consumer<TdQueryWrapper<T>> innerQueryWrapperConsumer) {
+        TdQueryWrapper<T> innerWrapper = TdWrappers.queryWrapper(getEntityClass());
+        innerQueryWrapperConsumer.accept(innerWrapper);
+        doInnerWrapper(innerWrapper);
+        return this;
     }
 
     public TdQueryWrapper<T> limit(int count) {

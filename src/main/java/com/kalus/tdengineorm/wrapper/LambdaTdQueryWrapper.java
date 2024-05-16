@@ -136,34 +136,30 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     public LambdaTdQueryWrapper<T> orderByAsc(SFunction<T, ?> sFunction) {
-        if (StrUtil.isNotBlank(getOrderBy())) {
-            getOrderBy().append(SqlConstant.COMMA);
+        if (StrUtil.isNotBlank(orderBy)) {
+            orderBy.append(SqlConstant.COMMA);
         }
-        getOrderBy().append(getColumnName(sFunction));
+        orderBy.append(getColumnName(sFunction));
         return this;
     }
 
     public LambdaTdQueryWrapper<T> orderByDesc(SFunction<T, ?> sFunction) {
-        if (StrUtil.isNotBlank(getOrderBy())) {
-            getOrderBy().append(SqlConstant.COMMA);
+        if (StrUtil.isNotBlank(orderBy)) {
+            orderBy.append(SqlConstant.COMMA);
         }
-        getOrderBy().append(SqlConstant.ORDER_BY)
+        orderBy.append(SqlConstant.ORDER_BY)
                 .append(getColumnName(sFunction))
                 .append(SqlConstant.BLANK)
                 .append(SqlConstant.DESC);
         return this;
     }
 
-    public LambdaTdQueryWrapper<T> outerQueryWrapper(Supplier<LambdaTdQueryWrapper<T>> outerQueryWrapper) {
-        LambdaTdQueryWrapper<T> outerWrapper = outerQueryWrapper.get();
-        doOuterWrapper(outerWrapper);
-        return outerWrapper;
-    }
 
-    public LambdaTdQueryWrapper<T> innerQueryWrapper(Supplier<LambdaTdQueryWrapper<T>> innerQueryWrapper) {
-        LambdaTdQueryWrapper<T> outerWrapper = innerQueryWrapper.get();
-        doOuterWrapper(outerWrapper);
-        return outerWrapper;
+    public LambdaTdQueryWrapper<T> innerQueryWrapper(Consumer<LambdaTdQueryWrapper<T>> innerQueryWrapperConsumer) {
+        LambdaTdQueryWrapper<T> innerWrapper = TdWrappers.lambdaQueryWrapper(getEntityClass());
+        innerQueryWrapperConsumer.accept(innerWrapper);
+        doInnerWrapper(innerWrapper);
+        return this;
     }
 
     public LambdaTdQueryWrapper<T> limit(int count) {
@@ -260,6 +256,6 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     private String buildParam(String fieldName, int index) {
-        return fieldName + SqlConstant.UNDERLINE + SqlConstant.UNDERLINE + getLayer() + SqlConstant.UNDERLINE + index;
+        return fieldName + SqlConstant.UNDERLINE + SqlConstant.UNDERLINE + layer + SqlConstant.UNDERLINE + index;
     }
 }

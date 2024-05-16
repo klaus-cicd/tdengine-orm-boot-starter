@@ -44,6 +44,14 @@ public abstract class AbstractTdWrapper<T> {
      */
     protected abstract void changeInnerTbName(String innerSql);
 
+    /**
+     * 自定义TB名称, 比如嵌套查询时
+     *
+     * @param innerSql 内层Sql
+     */
+    protected abstract void changeOuterTbName(String innerSql);
+
+
     protected void buildFrom() {
         getFinalSql().append(SqlConstant.FROM).append(getTbName()).append(SqlConstant.BLANK);
     }

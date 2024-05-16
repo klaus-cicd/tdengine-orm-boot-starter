@@ -40,6 +40,11 @@ public enum TdOrmExceptionCode implements ExceptionCode {
      * 被@PrimaryTs标记的字段类型不是Timestamp
      */
     PRIMARY_TS_NOT_TIMESTAMP("70007", "@PrimaryTs field type must be 'Timestamp'!"),
+
+    /**
+     * sql嵌套层数超过1层
+     */
+    SQL_LAYER_OUT_LIMITED("70008", "The number of layers exceeds the limit!"),
     ;
 
     private final String code;
