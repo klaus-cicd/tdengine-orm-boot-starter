@@ -83,7 +83,7 @@ public class LambdaTdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public LambdaTdQueryWrapper<T> last(SFunction<T, ?> column, SFunction<?, ?> aliasColumn) {
+    public LambdaTdQueryWrapper<T> lastAlias(SFunction<T, ?> column, SFunction<?, ?> aliasColumn) {
         addColumnName(buildAggregationFunc(TdSelectFuncEnum.LAST, getColumnName(column), getColumnName(aliasColumn)));
         return this;
     }

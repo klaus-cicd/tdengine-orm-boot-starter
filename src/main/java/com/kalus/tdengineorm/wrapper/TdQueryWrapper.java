@@ -42,12 +42,20 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> first(String column, String aliasColumn) {
+    public TdQueryWrapper<T> last(String... columns) {
+        String[] array = Arrays.stream(columns)
+                .map(column -> TdSqlConstant.LAST + SqlConstant.LEFT_BRACKET + column + SqlConstant.RIGHT_BRACKET + SqlConstant.BLANK + column)
+                .toArray(String[]::new);
+        addColumnNames(array);
+        return this;
+    }
+
+    public TdQueryWrapper<T> firstAlias(String column, String aliasColumn) {
         addColumnName(buildAggregationFunc(TdSelectFuncEnum.FIRST, column, aliasColumn));
         return this;
     }
 
-    public TdQueryWrapper<T> last(String column, String aliasColumn) {
+    public TdQueryWrapper<T> lastAlias(String column, String aliasColumn) {
         addColumnName(buildAggregationFunc(TdSelectFuncEnum.LAST, column, aliasColumn));
         return this;
     }
