@@ -9,7 +9,7 @@ public class TdWrappers {
         return new TdQueryWrapper<T>(targerClass);
     }
 
-    public static <T> SelectJoinerWrapper<T> selectWrapper(Class<T> targerClass){
-        return new SelectJoinerWrapper<T>(targerClass);
+    public static <T> SelectCalcWrapper<T> selectWrapper(Class<T> targerClass){
+        return new SelectCalcWrapper<T>(targerClass);
     }
 }

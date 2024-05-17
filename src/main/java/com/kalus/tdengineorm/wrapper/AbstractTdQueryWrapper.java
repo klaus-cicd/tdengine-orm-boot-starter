@@ -25,7 +25,7 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
     protected String limit;
     protected String[] selectColumnNames;
     protected String windowFunc;
-    protected SelectJoinerWrapper<T> selectJoinerWrapper;
+    protected SelectCalcWrapper<T> selectCalcWrapper;
     protected final StringBuilder orderBy = new StringBuilder();
     /**
      * 内层Wrapper对象
@@ -84,7 +84,7 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
     }
 
     private void buildSelect() {
-        AssertUtil.isTrue(ArrayUtil.isNotEmpty(selectColumnNames) || null != selectJoinerWrapper, new TdOrmException(TdOrmExceptionCode.NO_SELECT));
+        AssertUtil.isTrue(ArrayUtil.isNotEmpty(selectColumnNames) || null != selectCalcWrapper, new TdOrmException(TdOrmExceptionCode.NO_SELECT));
 
         finalSql.append(SqlConstant.SELECT);
         if (ArrayUtil.isNotEmpty(selectColumnNames)) {
@@ -96,8 +96,8 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
             }
         }
 
-        if (null != selectJoinerWrapper) {
-            finalSql.append(selectJoinerWrapper.getFinalSelectSql());
+        if (null != selectCalcWrapper) {
+            finalSql.append(selectCalcWrapper.getFinalSelectSql());
         }
     }
 

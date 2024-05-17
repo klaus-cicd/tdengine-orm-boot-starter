@@ -10,33 +10,32 @@ import com.klaus.fd.utils.AssertUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 
 /**
  * @author Klaus
  */
 @RequiredArgsConstructor
-public class SelectJoinerWrapper<T> extends AbstractSelectJoiner {
+public class SelectCalcWrapper<T> extends AbstractSelectCalc {
     private final Class<T> entityClass;
-    private final SelectJoinerSymbol<T> selectJoinerSymbol = new SelectJoinerSymbol<>(this);
+    private final SelectCalcSymbol<T> selectCalcSymbol = new SelectCalcSymbol<>(this);
     private String finalColumnAliasName;
 
-    public SelectJoinerSymbol<T> select(String columnName) {
+    public SelectCalcSymbol<T> select(String columnName) {
         addSelect(SelectColumn.builder().columnName(columnName).build());
-        return this.selectJoinerSymbol;
+        return this.selectCalcSymbol;
     }
 
-    public final SelectJoinerSymbol<T> select(SFunction<T, ?> sFunction) {
+    public final SelectCalcSymbol<T> select(SFunction<T, ?> sFunction) {
         return this.select(TdSqlUtil.getColumnName(entityClass, sFunction));
     }
 
-    public SelectJoinerSymbol<T> select(TdSelectFuncEnum selectFuncEnum, String columnName) {
+    public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, String columnName) {
         addSelect(SelectColumn.builder().columnName(columnName).selectFuncEnum(selectFuncEnum).build());
-        return this.selectJoinerSymbol;
+        return this.selectCalcSymbol;
     }
 
-    public SelectJoinerSymbol<T> select(TdSelectFuncEnum selectFuncEnum, SFunction<T, ?> sFunction) {
+    public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, SFunction<T, ?> sFunction) {
         return select(selectFuncEnum, TdSqlUtil.getColumnName(this.entityClass, sFunction));
     }
 

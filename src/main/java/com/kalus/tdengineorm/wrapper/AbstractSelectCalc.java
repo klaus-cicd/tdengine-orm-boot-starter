@@ -17,8 +17,8 @@ import java.util.List;
  * @author Klaus
  */
 @RequiredArgsConstructor
-public abstract class AbstractSelectJoiner {
-    protected final List<SelectJoinerWrapper.SelectColumn> selectColumnList = new ArrayList<>(16);
+public abstract class AbstractSelectCalc {
+    protected final List<SelectCalcWrapper.SelectColumn> selectColumnList = new ArrayList<>(16);
 
     protected String getFinalColumnAliasName() {
         return "";

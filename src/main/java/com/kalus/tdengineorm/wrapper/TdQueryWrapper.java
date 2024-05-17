@@ -49,13 +49,17 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> selectJoin(Consumer<SelectJoinerWrapper<T>> consumer) {
-        SelectJoinerWrapper<T> selectJoinerWrapper = new SelectJoinerWrapper<>(getEntityClass());
-        consumer.accept(selectJoinerWrapper);
-        super.selectJoinerWrapper = selectJoinerWrapper;
+    public TdQueryWrapper<T> selectCalc(String aliasColumnName, Consumer<SelectCalcWrapper<T>> consumer) {
+        SelectCalcWrapper<T> selectCalcWrapper = new SelectCalcWrapper<>(getEntityClass());
+        consumer.accept(selectCalcWrapper);
+        selectCalcWrapper.setFinalColumnAliasName(aliasColumnName);
+        super.selectCalcWrapper = selectCalcWrapper;
         return this;
     }
 
+    public TdQueryWrapper<T> selectCalc(SFunction<T, ?> aliasColumnFunc, Consumer<SelectCalcWrapper<T>> consumer) {
+        return selectCalc(getColumnName(aliasColumnFunc), consumer);
+    }
 
     public final TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, String... columnNames) {
         String[] array = Arrays.stream(columnNames)
