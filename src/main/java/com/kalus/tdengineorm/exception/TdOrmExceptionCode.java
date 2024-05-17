@@ -45,6 +45,11 @@ public enum TdOrmExceptionCode implements ExceptionCode {
      * sql嵌套层数超过1层
      */
     SQL_LAYER_OUT_LIMITED("70008", "The number of layers exceeds the limit!"),
+
+    /**
+     * 未设置最终字段别名
+     */
+    COLUMN_NO_ALIAS_NAME("70009", "Select joiner must set finalColumnAliasName!"),
     ;
 
     private final String code;

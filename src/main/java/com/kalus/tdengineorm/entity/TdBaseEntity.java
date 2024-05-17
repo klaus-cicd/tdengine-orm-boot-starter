@@ -11,6 +11,8 @@ import java.sql.Timestamp;
  */
 @Data
 public class TdBaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @PrimaryTs
     private Timestamp ts;
 }

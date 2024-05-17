@@ -4,12 +4,11 @@ import lombok.Getter;
 
 /**
  * TDengine常用聚合函数
- * 2入参
  *
  * @author Klaus
  */
 @Getter
-public enum TdTwoParamsSelectFuncEnum {
+public enum TdSelectFuncEnum {
 
     /**
      * 计数
@@ -62,7 +61,7 @@ public enum TdTwoParamsSelectFuncEnum {
 
     private final String func;
 
-    TdTwoParamsSelectFuncEnum(String func) {
+    TdSelectFuncEnum(String func) {
         this.func = func;
     }
 }

@@ -5,17 +5,23 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
+import com.baomidou.mybatisplus.core.toolkit.support.LambdaMeta;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.kalus.tdengineorm.annotation.PrimaryTs;
 import com.kalus.tdengineorm.annotation.TdField;
 import com.kalus.tdengineorm.annotation.TdTag;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.enums.TdFieldTypeEnum;
+import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.kalus.tdengineorm.strategy.AbstractDynamicNameStrategy;
 import com.klaus.fd.constant.SqlConstant;
 import com.klaus.fd.util.SqlUtil;
 import com.klaus.fd.utils.ClassUtil;
+import org.apache.ibatis.reflection.property.PropertyNamer;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
@@ -195,5 +201,23 @@ public class TdSqlUtil {
             throw new TdOrmException(TdOrmExceptionCode.PRIMARY_TS_NOT_TIMESTAMP);
         }
         return field;
+    }
+
+    public static <T> String getColumnName(Class<T> tClass, SFunction<T, ?> sFunction) {
+        String fieldName = getFieldName(LambdaUtils.extract(sFunction));
+        Field field = ClassUtil.getField(tClass, fieldName);
+        Assert.notNull(field, TdOrmExceptionCode.NO_FILED.getMsg());
+
+        String tableFiledAnnoValue = AnnotationUtil.getAnnotationValue(field, TableField.class, "value");
+        return StrUtil.isNotBlank(tableFiledAnnoValue) ? tableFiledAnnoValue : StrUtil.toUnderlineCase(fieldName);
+    }
+
+
+    public static String buildAggregationFunc(TdSelectFuncEnum tdSelectFuncEnum, String columnName, String aliasName) {
+        return StrUtil.format(tdSelectFuncEnum.getFunc(), columnName, aliasName);
+    }
+
+    private static String getFieldName(LambdaMeta sFunction) {
+        return PropertyNamer.methodToProperty(sFunction.getImplMethodName());
     }
 }
