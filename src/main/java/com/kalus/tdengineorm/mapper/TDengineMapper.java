@@ -211,7 +211,7 @@ public class TDengineMapper {
             for (int i = 0; i < list.size(); i++) {
                 T entity = list.get(i);
                 List<Field> fields = ClassUtil.getAllFields(entity.getClass());
-                finalSql.append(TdSqlUtil.jointSqlValue(entity, fields, paramsMap, i));
+                finalSql.append(TdSqlUtil.joinSqlValue(entity, fields, paramsMap, i));
             }
             int result = namedParameterJdbcTemplate.update(finalSql.toString(), paramsMap);
             if (log.isDebugEnabled()) {

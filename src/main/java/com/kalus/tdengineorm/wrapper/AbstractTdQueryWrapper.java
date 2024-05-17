@@ -3,18 +3,18 @@ package com.kalus.tdengineorm.wrapper;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
-import com.kalus.tdengineorm.util.TdSqlUtil;
 import com.klaus.fd.constant.SqlConstant;
+import com.klaus.fd.util.SqlUtil;
 import com.klaus.fd.utils.AssertUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -160,7 +160,7 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         getParamsMap().put(paramName, value);
     }
 
-    protected String getColumnName(SFunction<T, ?> sFunction) {
-        return TdSqlUtil.getColumnName(getEntityClass(), sFunction);
+    protected String getColumnName(Function<T, ?> getterFunc) {
+        return SqlUtil.getColumnName(getEntityClass(), getterFunc);
     }
 }

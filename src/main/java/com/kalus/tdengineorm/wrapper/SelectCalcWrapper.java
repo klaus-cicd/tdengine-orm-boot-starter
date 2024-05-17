@@ -1,15 +1,16 @@
 package com.kalus.tdengineorm.wrapper;
 
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.kalus.tdengineorm.enums.SelectJoinSymbolEnum;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
-import com.kalus.tdengineorm.util.TdSqlUtil;
+import com.klaus.fd.util.SqlUtil;
 import com.klaus.fd.utils.AssertUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import java.util.function.Function;
 
 
 /**
@@ -26,8 +27,8 @@ public class SelectCalcWrapper<T> extends AbstractSelectCalc {
         return this.selectCalcSymbol;
     }
 
-    public final SelectCalcSymbol<T> select(SFunction<T, ?> sFunction) {
-        return this.select(TdSqlUtil.getColumnName(entityClass, sFunction));
+    public final SelectCalcSymbol<T> select(Function<T, ?> getterFunc) {
+        return this.select(SqlUtil.getColumnName(entityClass, getterFunc));
     }
 
     public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, String columnName) {
@@ -35,8 +36,8 @@ public class SelectCalcWrapper<T> extends AbstractSelectCalc {
         return this.selectCalcSymbol;
     }
 
-    public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, SFunction<T, ?> sFunction) {
-        return select(selectFuncEnum, TdSqlUtil.getColumnName(this.entityClass, sFunction));
+    public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, Function<T, ?> getterFunc) {
+        return select(selectFuncEnum, SqlUtil.getColumnName(this.entityClass, getterFunc));
     }
 
     /**
@@ -54,8 +55,8 @@ public class SelectCalcWrapper<T> extends AbstractSelectCalc {
         selectColumnList.add(selectColumn);
     }
 
-    public void setFinalColumnAliasName(SFunction<T, ?> aliasColumn) {
-        setFinalColumnAliasName(TdSqlUtil.getColumnName(entityClass, aliasColumn));
+    public void setFinalColumnAliasName(Function<T, ?> aliasColumn) {
+        setFinalColumnAliasName(SqlUtil.getColumnName(entityClass, aliasColumn));
     }
 
     public void setFinalColumnAliasName(String aliasName) {

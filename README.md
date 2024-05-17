@@ -5,10 +5,9 @@
 
 ### 技术栈
 
-- spring-boot-starter 2.X (主要用到SpringBoot的自动装配功能, SpringBoot2.7以后自动装配方式有修改, 但旧的方式仍旧兼容)
+- spring-boot-starter 2.X 主要用到SpringBoot的自动装配功能, SpringBoot2.7以后自动装配方式有修改, 但旧的方式仍旧兼容
 - spring-boot-starter-jdbc 2.x 主要用到JdbcTemplate对象
-- MyBatisPlus 3.5.x (主要用到MyBatis的一些注解和部分工具类)
-- Taos jdbc driver 3.0 以上 (连接TDengine数据库使用)
+- MyBatisPlusAnno 3.5.x 主要就是用到几个注解, 比如@TableName @TableField
 
 ## 使用
 
@@ -24,11 +23,6 @@
         <artifactId>spring-boot-starter</artifactId>
         <version>2.4.2</version>
     </dependency>
-    <dependency>
-        <groupId>com.taosdata.jdbc</groupId>
-        <artifactId>taos-jdbcdriver</artifactId>
-        <version>3.2.5</version>
-    </dependency>
 
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -43,6 +37,11 @@
         <version>3.5.4.1</version>
     </dependency>
 
+    <dependency>
+        <groupId>com.taosdata.jdbc</groupId>
+        <artifactId>taos-jdbcdriver</artifactId>
+        <version>3.2.5</version>
+    </dependency>
 </dependencies>
 ```
 

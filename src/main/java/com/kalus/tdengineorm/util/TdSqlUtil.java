@@ -5,10 +5,6 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
-import com.baomidou.mybatisplus.core.toolkit.support.LambdaMeta;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.kalus.tdengineorm.annotation.PrimaryTs;
 import com.kalus.tdengineorm.annotation.TdField;
 import com.kalus.tdengineorm.annotation.TdTag;
@@ -21,7 +17,6 @@ import com.kalus.tdengineorm.strategy.AbstractDynamicNameStrategy;
 import com.klaus.fd.constant.SqlConstant;
 import com.klaus.fd.util.SqlUtil;
 import com.klaus.fd.utils.ClassUtil;
-import org.apache.ibatis.reflection.property.PropertyNamer;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
@@ -37,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class TdSqlUtil {
 
-    public static <T> String jointSqlValue(T entity, List<Field> fields, Map<String, Object> paramsMapList, int index) {
+    public static <T> String joinSqlValue(T entity, List<Field> fields, Map<String, Object> paramsMapList, int index) {
         Map<Boolean, List<Field>> fieldGroups = fields.stream()
                 .collect(Collectors.partitioningBy(field -> field.isAnnotationPresent(TdTag.class)));
         List<Field> commFields = fieldGroups.get(Boolean.FALSE);
@@ -203,21 +198,7 @@ public class TdSqlUtil {
         return field;
     }
 
-    public static <T> String getColumnName(Class<T> tClass, SFunction<T, ?> sFunction) {
-        String fieldName = getFieldName(LambdaUtils.extract(sFunction));
-        Field field = ClassUtil.getField(tClass, fieldName);
-        Assert.notNull(field, TdOrmExceptionCode.NO_FILED.getMsg());
-
-        String tableFiledAnnoValue = AnnotationUtil.getAnnotationValue(field, TableField.class, "value");
-        return StrUtil.isNotBlank(tableFiledAnnoValue) ? tableFiledAnnoValue : StrUtil.toUnderlineCase(fieldName);
-    }
-
-
     public static String buildAggregationFunc(TdSelectFuncEnum tdSelectFuncEnum, String columnName, String aliasName) {
         return StrUtil.format(tdSelectFuncEnum.getFunc(), columnName, aliasName);
-    }
-
-    private static String getFieldName(LambdaMeta sFunction) {
-        return PropertyNamer.methodToProperty(sFunction.getImplMethodName());
     }
 }

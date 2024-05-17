@@ -48,7 +48,7 @@
 
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-annotation</artifactId>
             <version>${default-mp.version}</version>
             <scope>provided</scope>
         </dependency>

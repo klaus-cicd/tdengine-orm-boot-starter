@@ -2,16 +2,17 @@ package com.kalus.tdengineorm.wrapper;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.kalus.tdengineorm.util.TdSqlUtil;
 import com.klaus.fd.constant.SqlConstant;
+import com.klaus.fd.util.SqlUtil;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Tdengine查询包装
@@ -36,12 +37,12 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     @SafeVarargs
-    public final TdQueryWrapper<T> select(SFunction<T, ?>... sFunctions) {
-        if (ArrayUtil.isEmpty(sFunctions)) {
+    public final TdQueryWrapper<T> select(Function<T, ?>... getterFuncArray) {
+        if (ArrayUtil.isEmpty(getterFuncArray)) {
             throw new TdOrmException(TdOrmExceptionCode.NO_SELECT);
         }
 
-        String[] fieldNameArray = Arrays.stream(sFunctions)
+        String[] fieldNameArray = Arrays.stream(getterFuncArray)
                 .map(this::getColumnName)
                 .toArray(String[]::new);
 
@@ -57,7 +58,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> selectCalc(SFunction<T, ?> aliasColumnFunc, Consumer<SelectCalcWrapper<T>> consumer) {
+    public TdQueryWrapper<T> selectCalc(Function<T, ?> aliasColumnFunc, Consumer<SelectCalcWrapper<T>> consumer) {
         return selectCalc(getColumnName(aliasColumnFunc), consumer);
     }
 
@@ -80,10 +81,10 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     @SafeVarargs
-    public final TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, SFunction<T, ?>... functions) {
-        String[] array = Arrays.stream(functions)
-                .map(sFunction -> {
-                    String columnName = getColumnName(sFunction);
+    public final TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, Function<T, ?>... getterFuncArray) {
+        String[] array = Arrays.stream(getterFuncArray)
+                .map(getterFunc -> {
+                    String columnName = getColumnName(getterFunc);
                     return TdSqlUtil.buildAggregationFunc(selectFuncEnum, columnName, columnName);
                 })
                 .toArray(String[]::new);
@@ -91,14 +92,14 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, SFunction<T, ?> column) {
+    public TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, Function<T, ?> column) {
         String columnName = getColumnName(column);
         selectFunc(selectFuncEnum, columnName);
         return this;
     }
 
-    public <R> TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, SFunction<T, ?> column, Class<R> aliasClass, SFunction<R, ?> aliasColumn) {
-        selectFunc(selectFuncEnum, getColumnName(column), TdSqlUtil.getColumnName(aliasClass, aliasColumn));
+    public <R> TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, Function<T, ?> column, Class<R> aliasClass, Function<R, ?> aliasColumn) {
+        selectFunc(selectFuncEnum, getColumnName(column), SqlUtil.getColumnName(aliasClass, aliasColumn));
         return this;
     }
 
@@ -109,8 +110,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
 
-    public TdQueryWrapper<T> eq(SFunction<T, ?> sFunction, Object value) {
-        return eq(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> eq(Function<T, ?> getterFunc, Object value) {
+        return eq(getColumnName(getterFunc), value);
     }
 
     public TdQueryWrapper<T> and() {
@@ -173,13 +174,13 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     // }
 
 
-    public TdQueryWrapper<T> ne(SFunction<T, ?> sFunction, Object value) {
-        return ne(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> ne(Function<T, ?> getterFunc, Object value) {
+        return ne(getColumnName(getterFunc), value);
     }
 
 
-    public TdQueryWrapper<T> notNull(SFunction<T, ?> sFunction, Object value) {
-        return notNull(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> notNull(Function<T, ?> getterFunc, Object value) {
+        return notNull(getColumnName(getterFunc), value);
     }
 
     public TdQueryWrapper<T> intervalWindow(String interval) {
@@ -188,18 +189,18 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
 
-    public TdQueryWrapper<T> stateWindow(SFunction<T, ?> sFunction) {
-        return stateWindow(getColumnName(sFunction));
+    public TdQueryWrapper<T> stateWindow(Function<T, ?> getterFunc) {
+        return stateWindow(getColumnName(getterFunc));
     }
 
 
-    public TdQueryWrapper<T> orderByAsc(SFunction<T, ?> sFunction) {
-        return orderByAsc(getColumnName(sFunction));
+    public TdQueryWrapper<T> orderByAsc(Function<T, ?> getterFunc) {
+        return orderByAsc(getColumnName(getterFunc));
     }
 
 
-    public TdQueryWrapper<T> orderByDesc(SFunction<T, ?> sFunction) {
-        return orderByDesc(getColumnName(sFunction));
+    public TdQueryWrapper<T> orderByDesc(Function<T, ?> getterFunc) {
+        return orderByDesc(getColumnName(getterFunc));
     }
 
 
@@ -232,8 +233,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> lt(SFunction<T, ?> sFunction, Object value) {
-        return lt(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> lt(Function<T, ?> getterFunc, Object value) {
+        return lt(getColumnName(getterFunc), value);
     }
 
 
@@ -242,8 +243,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> le(SFunction<T, ?> sFunction, Object value) {
-        return le(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> le(Function<T, ?> getterFunc, Object value) {
+        return le(getColumnName(getterFunc), value);
     }
 
 
@@ -252,8 +253,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> gt(SFunction<T, ?> sFunction, Object value) {
-        return gt(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> gt(Function<T, ?> getterFunc, Object value) {
+        return gt(getColumnName(getterFunc), value);
     }
 
 
@@ -262,8 +263,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> ge(SFunction<T, ?> sFunction, Object value) {
-        return ge(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> ge(Function<T, ?> getterFunc, Object value) {
+        return ge(getColumnName(getterFunc), value);
     }
 
 
@@ -272,8 +273,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public TdQueryWrapper<T> like(SFunction<T, ?> sFunction, Object value) {
-        return like(getColumnName(sFunction), value);
+    public TdQueryWrapper<T> like(Function<T, ?> getterFunc, Object value) {
+        return like(getColumnName(getterFunc), value);
     }
 
 
@@ -314,13 +315,13 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     /**
      * 左闭右开区间范围
      *
-     * @param sFunction  get方法
+     * @param getterFunc get方法
      * @param leftValue  左区间值
      * @param rightValue 右区间值
      * @return {@link TdQueryWrapper }<{@link T }>
      */
-    public TdQueryWrapper<T> between(SFunction<T, ?> sFunction, Object leftValue, Object rightValue) {
-        return between(getColumnName(sFunction), leftValue, rightValue);
+    public TdQueryWrapper<T> between(Function<T, ?> getterFunc, Object leftValue, Object rightValue) {
+        return between(getColumnName(getterFunc), leftValue, rightValue);
     }
 
     private String getParamName(String fieldName) {
