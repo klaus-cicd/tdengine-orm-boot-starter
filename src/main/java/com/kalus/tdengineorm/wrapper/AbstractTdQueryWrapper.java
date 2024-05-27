@@ -9,12 +9,12 @@ import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.klaus.fd.constant.SqlConstant;
+import com.klaus.fd.func.GetterFunction;
 import com.klaus.fd.util.SqlUtil;
 import com.klaus.fd.utils.AssertUtil;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -160,7 +160,7 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         getParamsMap().put(paramName, value);
     }
 
-    protected String getColumnName(Function<T, ?> getterFunc) {
+    protected String getColumnName(GetterFunction<T, ?> getterFunc) {
         return SqlUtil.getColumnName(getEntityClass(), getterFunc);
     }
 }

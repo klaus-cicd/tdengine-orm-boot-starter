@@ -4,13 +4,12 @@ import com.kalus.tdengineorm.enums.SelectJoinSymbolEnum;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
+import com.klaus.fd.func.GetterFunction;
 import com.klaus.fd.util.SqlUtil;
 import com.klaus.fd.utils.AssertUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
-import java.util.function.Function;
 
 
 /**
@@ -27,7 +26,7 @@ public class SelectCalcWrapper<T> extends AbstractSelectCalc {
         return this.selectCalcSymbol;
     }
 
-    public final SelectCalcSymbol<T> select(Function<T, ?> getterFunc) {
+    public final SelectCalcSymbol<T> select(GetterFunction<T, ?> getterFunc) {
         return this.select(SqlUtil.getColumnName(entityClass, getterFunc));
     }
 
@@ -36,7 +35,7 @@ public class SelectCalcWrapper<T> extends AbstractSelectCalc {
         return this.selectCalcSymbol;
     }
 
-    public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, Function<T, ?> getterFunc) {
+    public SelectCalcSymbol<T> select(TdSelectFuncEnum selectFuncEnum, GetterFunction<T, ?> getterFunc) {
         return select(selectFuncEnum, SqlUtil.getColumnName(this.entityClass, getterFunc));
     }
 
@@ -55,7 +54,7 @@ public class SelectCalcWrapper<T> extends AbstractSelectCalc {
         selectColumnList.add(selectColumn);
     }
 
-    public void setFinalColumnAliasName(Function<T, ?> aliasColumn) {
+    public void setFinalColumnAliasName(GetterFunction<T, ?> aliasColumn) {
         setFinalColumnAliasName(SqlUtil.getColumnName(entityClass, aliasColumn));
     }
 
