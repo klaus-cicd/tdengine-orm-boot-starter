@@ -112,18 +112,25 @@ public class TdSqlUtil {
 
     public static String getFieldTypeAndLength(Field field) {
         TdField tdField = field.getAnnotation(TdField.class);
-        if (null == tdField) {
-            return TdFieldTypeEnum.INT.getFiledType();
-        }
-        TdFieldTypeEnum type = tdField.type();
-        if (type.getNeedLengthLimit() == 1) {
-            int length = tdField.length();
-            if (length <= 0) {
+        TdFieldTypeEnum type = null == tdField ? getColumnTypeByField(field) : tdField.type();
+        if (type.isNeedLengthLimit()) {
+            if (tdField == null || tdField.length() <= 0) {
                 throw new TdOrmException(TdOrmExceptionCode.FIELD_NO_LENGTH);
             }
+            int length = tdField.length();
             return type.getFiledType() + SqlConstant.LEFT_BRACKET + length + SqlConstant.RIGHT_BRACKET;
         }
         return type.getFiledType();
+    }
+
+    private static TdFieldTypeEnum getColumnTypeByField(Field field) {
+        Class<?> fieldType = field.getType();
+        TdFieldTypeEnum tdFieldTypeEnum = TdFieldTypeEnum.matchByFieldType(fieldType);
+        if (null == tdFieldTypeEnum) {
+            throw new TdOrmException(TdOrmExceptionCode.CANT_NOT_MATCH_FIELD_TYPE);
+        }
+
+        return tdFieldTypeEnum;
     }
 
     public static String buildCreateColumn(List<Field> fields, Field primaryTsField) {

@@ -50,6 +50,10 @@ public enum TdOrmExceptionCode implements ExceptionCode {
      * 未设置最终字段别名
      */
     COLUMN_NO_ALIAS_NAME("70009", "Select joiner must set finalColumnAliasName!"),
+    /**
+     * 未匹配到合适的字段类型
+     */
+    CANT_NOT_MATCH_FIELD_TYPE("70010", "Not matched to the appropriate field type!"),
     ;
 
     private final String code;

@@ -2,6 +2,8 @@ package com.kalus.tdengineorm.enums;
 
 import lombok.Getter;
 
+import java.sql.Timestamp;
+
 /**
  * TDengine字段类型枚举
  *
@@ -13,23 +15,23 @@ public enum TdFieldTypeEnum {
     /**
      * TDengine唯一的时间类型
      */
-    TIMESTAMP("TIMESTAMP", "时间戳", "Timestamp", 0),
-    INT("INT", "整型", "Integer", 0),
-    INT_UNSIGNED("INT UNSIGNED", "无符号整数", "Integer", 0),
-    BIGINT("BIGINT", "长整型", "Long", 0),
-    BIGINT_UNSIGNED("BIGINT UNSIGNED", "长整型", "Long", 0),
-    FLOAT("FLOAT", "浮点型", "Float", 0),
-    DOUBLE("DOUBLE", "双精度浮点型", "Double", 0),
-    BINARY("BINARY", "单字节字符串", "Char", 1),
-    SMALLINT("SMALLINT", "短整型", "Integer", 0),
-    SMALLINT_UNSIGNED("SMALLINT UNSIGNED", "Integer", "Timestamp", 0),
-    TINYINT("TINYINT", "单字节整型", "Integer", 0),
-    TINYINT_UNSIGNED("TINYINT UNSIGNED", "Integer", "Timestamp", 0),
-    BOOL("BOOL", "布尔型", "Boolean", 0),
-    NCHAR("NCHAR", "多字节字符串", "String", 1),
-    JSON("JSON", "JSON", "String", 0),
-    VARCHAR("VARCHAR", "BINARY类型的别名", "Char", 1),
-    GEOMETRY("GEOMETRY", "几何类型", "未知", 1);
+    TIMESTAMP("TIMESTAMP", "时间戳", "Timestamp", false),
+    INT("INT", "整型", "Integer", false),
+    INT_UNSIGNED("INT UNSIGNED", "无符号整数", "Integer", false),
+    BIGINT("BIGINT", "长整型", "Long", false),
+    BIGINT_UNSIGNED("BIGINT UNSIGNED", "长整型", "Long", false),
+    FLOAT("FLOAT", "浮点型", "Float", false),
+    DOUBLE("DOUBLE", "双精度浮点型", "Double", false),
+    BINARY("BINARY", "单字节字符串", "Char", true),
+    SMALLINT("SMALLINT", "短整型", "Integer", false),
+    SMALLINT_UNSIGNED("SMALLINT UNSIGNED", "Integer", "Timestamp", false),
+    TINYINT("TINYINT", "单字节整型", "Integer", false),
+    TINYINT_UNSIGNED("TINYINT UNSIGNED", "Integer", "Timestamp", false),
+    BOOL("BOOL", "布尔型", "Boolean", false),
+    NCHAR("NCHAR", "多字节字符串", "String", true),
+    JSON("JSON", "JSON", "String", false),
+    VARCHAR("VARCHAR", "BINARY类型的别名", "Char", true),
+    GEOMETRY("GEOMETRY", "几何类型", "未知", true);
 
     /**
      * TDEngine字段类型
@@ -51,12 +53,33 @@ public enum TdFieldTypeEnum {
      * 0: falase
      * 1: true
      */
-    private final int needLengthLimit;
+    private final boolean needLengthLimit;
 
-    private TdFieldTypeEnum(String filedType, String desc, String javaType, int needLengthLimit) {
+    TdFieldTypeEnum(String filedType, String desc, String javaType, boolean needLengthLimit) {
         this.filedType = filedType;
         this.desc = desc;
         this.javaType = javaType;
         this.needLengthLimit = needLengthLimit;
+    }
+
+    public static TdFieldTypeEnum matchByFieldType(Class<?> fieldType) {
+        if (fieldType.equals(Timestamp.class)) {
+            return TdFieldTypeEnum.TIMESTAMP;
+        } else if (fieldType.equals(Integer.class)) {
+            return TdFieldTypeEnum.INT;
+        } else if (fieldType.equals(Double.class)) {
+            return TdFieldTypeEnum.DOUBLE;
+        } else if (fieldType.equals(Float.class)) {
+            return TdFieldTypeEnum.FLOAT;
+        } else if (fieldType.equals(Long.class)) {
+            return TdFieldTypeEnum.BIGINT;
+        } else if (fieldType.equals(Character.class)) {
+            return TdFieldTypeEnum.BINARY;
+        } else if (fieldType.equals(Boolean.class)) {
+            return TdFieldTypeEnum.BOOL;
+        } else if (fieldType.equals(String.class)) {
+            return TdFieldTypeEnum.NCHAR;
+        }
+        return null;
     }
 }
