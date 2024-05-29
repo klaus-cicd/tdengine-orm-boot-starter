@@ -1,3 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.kalus.tdengineorm.mapper.TDengineMapper,\
-com.kalus.tdengineorm.properties.TdOrmProperties
+com.kalus.tdengineorm.config.TDengineOrmAutoConfiguration

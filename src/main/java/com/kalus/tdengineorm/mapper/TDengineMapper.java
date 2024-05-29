@@ -2,7 +2,9 @@ package com.kalus.tdengineorm.mapper;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.json.JSONUtil;
 import com.kalus.tdengineorm.annotation.TdTag;
+import com.kalus.tdengineorm.constant.SqlConstant;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.entity.TdBaseEntity;
 import com.kalus.tdengineorm.enums.TdLogLevelEnum;
@@ -10,16 +12,10 @@ import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.kalus.tdengineorm.strategy.AbstractDynamicNameStrategy;
 import com.kalus.tdengineorm.strategy.DefaultDynamicNameStrategy;
-import com.kalus.tdengineorm.util.TdOrmUtil;
-import com.kalus.tdengineorm.util.TdSqlUtil;
+import com.kalus.tdengineorm.util.*;
 import com.kalus.tdengineorm.wrapper.AbstractTdQueryWrapper;
 import com.kalus.tdengineorm.wrapper.TdQueryWrapper;
 import com.kalus.tdengineorm.wrapper.TdWrappers;
-import com.klaus.fd.constant.SqlConstant;
-import com.klaus.fd.util.JdbcTemplatePlus;
-import com.klaus.fd.util.SqlUtil;
-import com.klaus.fd.utils.ClassUtil;
-import com.klaus.fd.utils.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +39,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TDengineMapper {
 
-    @Resource
-    private JdbcTemplatePlus jdbcTemplatePlus;
-    @Resource
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcTemplatePlus jdbcTemplatePlus;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     /**
      * 按ts字段倒叙, 获取最新的一条数据
@@ -228,11 +222,11 @@ public class TDengineMapper {
             switch (tdLogLevelEnum) {
                 case DEBUG:
                     if (log.isDebugEnabled()) {
-                        log.debug(logFormat, sql, JsonUtil.toJsonStr(paramsMap));
+                        log.debug(logFormat, sql, JSONUtil.toJsonStr(paramsMap));
                     }
                     break;
                 case INFO:
-                    log.info(logFormat, sql, JsonUtil.toJsonStr(paramsMap));
+                    log.info(logFormat, sql, JSONUtil.toJsonStr(paramsMap));
                     break;
                 default:
             }

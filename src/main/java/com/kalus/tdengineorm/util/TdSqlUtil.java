@@ -8,15 +8,13 @@ import cn.hutool.core.util.StrUtil;
 import com.kalus.tdengineorm.annotation.PrimaryTs;
 import com.kalus.tdengineorm.annotation.TdField;
 import com.kalus.tdengineorm.annotation.TdTag;
+import com.kalus.tdengineorm.constant.SqlConstant;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.enums.TdFieldTypeEnum;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.kalus.tdengineorm.strategy.AbstractDynamicNameStrategy;
-import com.klaus.fd.constant.SqlConstant;
-import com.klaus.fd.util.SqlUtil;
-import com.klaus.fd.utils.ClassUtil;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;

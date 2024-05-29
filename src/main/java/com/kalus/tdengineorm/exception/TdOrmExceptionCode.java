@@ -1,6 +1,5 @@
 package com.kalus.tdengineorm.exception;
 
-import com.klaus.fd.exception.ExceptionCode;
 
 /**
  * @author Klaus

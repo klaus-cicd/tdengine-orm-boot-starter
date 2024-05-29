@@ -1,7 +1,7 @@
 package com.kalus.tdengineorm.util;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.kalus.tdengineorm.enums.TdLogLevelEnum;
-import com.klaus.fd.utils.BeanUtil;
 import org.springframework.core.env.Environment;
 
 /**
@@ -16,7 +16,7 @@ public class TdOrmUtil {
      * @return {@link TdLogLevelEnum }
      */
     public static TdLogLevelEnum getLogLevel() {
-        Environment environment = BeanUtil.getBean(Environment.class);
+        Environment environment = SpringUtil.getBean(Environment.class);
         String tdLogLevel = environment.getProperty("td-orm.log-level");
         return TdLogLevelEnum.match(tdLogLevel);
     }

@@ -1,18 +1,21 @@
 package com.kalus.tdengineorm.exception;
 
-import com.klaus.fd.exception.AbstractException;
-import com.klaus.fd.exception.ExceptionCode;
 
 /**
  * @author Klaus
  */
-public class TdOrmException extends AbstractException {
+public class TdOrmException extends RuntimeException {
+
+    private final Integer code;
+
     public TdOrmException(Integer code, String message) {
-        super(code, message);
+        super(message);
+        this.code = code;
     }
 
     public TdOrmException(ExceptionCode exceptionCode) {
-        super(exceptionCode);
+        super(exceptionCode.getMsg());
+        this.code = exceptionCode.getCode();
     }
 
 }

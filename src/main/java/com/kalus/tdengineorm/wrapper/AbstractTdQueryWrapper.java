@@ -3,14 +3,14 @@ package com.kalus.tdengineorm.wrapper;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.kalus.tdengineorm.constant.SqlConstant;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
-import com.klaus.fd.constant.SqlConstant;
-import com.klaus.fd.func.GetterFunction;
-import com.klaus.fd.util.SqlUtil;
-import com.klaus.fd.utils.AssertUtil;
+import com.kalus.tdengineorm.func.GetterFunction;
+import com.kalus.tdengineorm.util.AssertUtil;
+import com.kalus.tdengineorm.util.SqlUtil;
 
 import java.util.Arrays;
 import java.util.List;
