@@ -3,7 +3,6 @@ package com.kalus.tdengineorm.wrapper;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.kalus.tdengineorm.constant.TdSqlConstant;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
@@ -107,13 +106,13 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
 
     protected void doWindowFunc(TdWindFuncTypeEnum funcType, String winFuncValue) {
         Assert.isNull(windowFunc, "[TDengineQueryWrapper] 不可重复设置窗口函数");
-        windowFunc = buildWindowFunc(funcType);
-        getParamsMap().put(TdSqlConstant.WINDOW_FUNC_PARAM_NAME + layer, winFuncValue);
+        windowFunc = buildWindowFunc(funcType, winFuncValue);
     }
 
-    protected String buildWindowFunc(TdWindFuncTypeEnum tdWindFuncTypeEnum) {
+    protected String buildWindowFunc(TdWindFuncTypeEnum tdWindFuncTypeEnum, String winFuncValue) {
+        // 窗口函数的内容不可用引号包括, 所以这里直接使用拼接的方式
         return tdWindFuncTypeEnum.getKey() + SqlConstant.LEFT_BRACKET
-                + SqlConstant.COLON + TdSqlConstant.WINDOW_FUNC_PARAM_NAME + layer
+                + winFuncValue
                 + SqlConstant.RIGHT_BRACKET;
     }
 

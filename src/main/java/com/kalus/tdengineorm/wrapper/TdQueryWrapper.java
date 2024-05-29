@@ -10,8 +10,12 @@ import com.kalus.tdengineorm.util.TdSqlUtil;
 import com.klaus.fd.constant.SqlConstant;
 import com.klaus.fd.func.GetterFunction;
 import com.klaus.fd.util.SqlUtil;
+import com.klaus.fd.utils.AssertUtil;
+import com.klaus.fd.utils.ClassUtil;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -28,6 +32,14 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
     public TdQueryWrapper<T> selectAll() {
         doSelectAll();
+        return this;
+    }
+
+    public TdQueryWrapper<T> selectAll(Class<?> selectClass) {
+        List<Field> allFields = ClassUtil.getAllFields(selectClass);
+        AssertUtil.notEmpty(allFields, new TdOrmException(TdOrmExceptionCode.NO_FILED));
+        String[] columnNames = allFields.stream().map(SqlUtil::getColumnName).toArray(String[]::new);
+        addColumnNames(columnNames);
         return this;
     }
 
@@ -198,6 +210,14 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return orderByAsc(getColumnName(getterFunc));
     }
 
+
+    public <R> TdQueryWrapper<T> orderByDesc(Class<R> clazz, GetterFunction<R, ?> getterFunc) {
+        return orderByDesc(SqlUtil.getColumnName(clazz, getterFunc));
+    }
+
+    public <R> TdQueryWrapper<T> orderByAsc(Class<R> clazz, GetterFunction<R, ?> getterFunc) {
+        return orderByAsc(SqlUtil.getColumnName(clazz, getterFunc));
+    }
 
     public TdQueryWrapper<T> orderByDesc(GetterFunction<T, ?> getterFunc) {
         return orderByDesc(getColumnName(getterFunc));
