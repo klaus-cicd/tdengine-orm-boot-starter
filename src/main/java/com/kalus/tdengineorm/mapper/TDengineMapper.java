@@ -6,7 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.kalus.tdengineorm.annotation.TdTag;
 import com.kalus.tdengineorm.constant.SqlConstant;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
-import com.kalus.tdengineorm.entity.TdBaseEntity;
+import com.kalus.tdengineorm.entity.BaseTdEntity;
 import com.kalus.tdengineorm.enums.TdLogLevelEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +47,7 @@ public class TDengineMapper {
      * @param clazz clazz
      * @return {@link T }
      */
-    public <T extends TdBaseEntity> T getLastOneByTs(Class<T> clazz) {
+    public <T extends BaseTdEntity> T getLastOneByTs(Class<T> clazz) {
         TdQueryWrapper<T> wrapper = TdWrappers.queryWrapper(clazz)
                 .selectAll()
                 .orderByDesc("ts")
@@ -161,7 +160,7 @@ public class TDengineMapper {
      * @param clazz clazz
      * @return int
      */
-    public <T extends TdBaseEntity> int createStableTable(Class<T> clazz) {
+    public <T extends BaseTdEntity> int createStableTable(Class<T> clazz) {
         List<Field> fieldList = ClassUtil.getAllFields(clazz);
         // 区分普通字段和Tag字段
         Pair<List<Field>, List<Field>> fieldListPairByTag = TdSqlUtil.differentiateByTag(fieldList);

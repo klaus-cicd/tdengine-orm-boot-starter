@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author Klaus
  */
 @Data
-public class TdBaseEntity {
+public class BaseTdEntity {
 
     @PrimaryTs
     private Timestamp ts;
