@@ -53,6 +53,11 @@ public enum TdOrmExceptionCode implements ExceptionCode {
      * 未匹配到合适的字段类型
      */
     CANT_NOT_MATCH_FIELD_TYPE(70010, "Not matched to the appropriate field type!"),
+
+    /**
+     * 参数值不能为空
+     */
+    PARAM_VALUE_CANT_NOT_BE_NULL(70011, "Parameter value cannot be null!"),
     ;
 
     private final Integer code;

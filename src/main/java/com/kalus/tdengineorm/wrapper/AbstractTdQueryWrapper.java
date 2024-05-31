@@ -14,6 +14,7 @@ import com.kalus.tdengineorm.util.SqlUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -141,20 +142,45 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
     }
 
     protected void addWhereParam(Object value, String columnName, String paramName, String symbol) {
-        if (StrUtil.isNotBlank(where)) {
-            where.append(SqlConstant.AND);
-        }
+        AssertUtil.notNull(value, new TdOrmException(TdOrmExceptionCode.PARAM_VALUE_CANT_NOT_BE_NULL));
+        checkHasWhere();
         where
                 .append(columnName)
                 .append(symbol)
                 .append(SqlConstant.COLON)
                 .append(paramName)
                 .append(SqlConstant.BLANK);
+        if (null != value) {
+            getParamsMap().put(paramName, value);
+        }
+    }
 
-        getParamsMap().put(paramName, value);
+    private void checkHasWhere() {
+        if (StrUtil.isNotBlank(where)) {
+            where.append(SqlConstant.AND);
+        }
     }
 
     protected String getColumnName(GetterFunction<T, ?> getterFunc) {
         return SqlUtil.getColumnName(getEntityClass(), getterFunc);
+    }
+
+    protected void doIn(String columnName, List<Object> values) {
+        checkHasWhere();
+
+        Map<String, Object> paramsMap = getParamsMap();
+        String finalInColumnsStr = values.stream().map(value -> {
+            String paramName = genParamName();
+            paramsMap.put(paramName, value);
+            return SqlConstant.COLON + paramName;
+        }).collect(SqlUtil.getParenthesisCollector());
+
+        where
+                .append(columnName)
+                .append(SqlConstant.IN)
+                .append(SqlConstant.LEFT_BRACKET)
+                .append(finalInColumnsStr)
+                .append(SqlConstant.RIGHT_BRACKET)
+                .append(SqlConstant.BLANK);
     }
 }

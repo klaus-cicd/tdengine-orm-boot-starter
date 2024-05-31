@@ -223,6 +223,16 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return orderByDesc(getColumnName(getterFunc));
     }
 
+    public TdQueryWrapper<T> in(String columnName, List<Object> values) {
+        doIn(columnName, values);
+        return this;
+    }
+
+    public TdQueryWrapper<T> in(GetterFunction<T, ?> column, List<Object> values) {
+        doIn(getColumnName(column), values);
+        return this;
+    }
+
 
     public TdQueryWrapper<T> innerQueryWrapper(Consumer<TdQueryWrapper<T>> innerQueryWrapperConsumer) {
         TdQueryWrapper<T> innerWrapper = TdWrappers.queryWrapper(getEntityClass());
