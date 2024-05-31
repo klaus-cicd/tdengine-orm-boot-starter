@@ -1,11 +1,11 @@
 package com.kalus.tdengineorm.strategy;
 
 /**
- * 根据当天日期作为后缀拼接 生成新的名称
+ * 直接返回原表名称
  *
  * @author Silas
  */
-public class DefaultDynamicNameStrategy extends AbstractDynamicNameStrategy {
+public class DefaultDynamicNameStrategy implements DynamicNameStrategy {
 
     @Override
     public String dynamicTableName(String tableName) {

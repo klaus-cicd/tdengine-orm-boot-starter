@@ -10,7 +10,7 @@ import com.kalus.tdengineorm.entity.BaseTdEntity;
 import com.kalus.tdengineorm.enums.TdLogLevelEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
-import com.kalus.tdengineorm.strategy.AbstractDynamicNameStrategy;
+import com.kalus.tdengineorm.strategy.DynamicNameStrategy;
 import com.kalus.tdengineorm.strategy.DefaultDynamicNameStrategy;
 import com.kalus.tdengineorm.util.*;
 import com.kalus.tdengineorm.wrapper.AbstractTdQueryWrapper;
@@ -113,7 +113,7 @@ public class TDengineMapper {
      * @param dynamicNameStrategy 日期动态命名策略
      * @return int
      */
-    public int insert(Object object, AbstractDynamicNameStrategy dynamicNameStrategy) {
+    public int insert(Object object, DynamicNameStrategy dynamicNameStrategy) {
         // 获取超级表表名&所有Field
         List<Field> noTagFieldList = TdSqlUtil.getNoTagFieldList(object.getClass());
         if (CollectionUtils.isEmpty(noTagFieldList)) {
@@ -138,11 +138,11 @@ public class TDengineMapper {
         batchInsertUsing(clazz, entityList, 1000, new DefaultDynamicNameStrategy());
     }
 
-    public <T> void batchInsertUsing(Class<T> clazz, List<T> entityList, AbstractDynamicNameStrategy dynamicTbNameStrategy) {
+    public <T> void batchInsertUsing(Class<T> clazz, List<T> entityList, DynamicNameStrategy dynamicTbNameStrategy) {
         batchInsertUsing(clazz, entityList, 1000, dynamicTbNameStrategy);
     }
 
-    public int insertUsing(Object object, AbstractDynamicNameStrategy dynamicTbNameStrategy) {
+    public int insertUsing(Object object, DynamicNameStrategy dynamicTbNameStrategy) {
         // 获取表表名&所有Field
         Pair<String, List<Field>> tbNameAndFieldsPair = TdSqlUtil.getTbNameAndFieldListPair(object.getClass());
         // 获取SQL&参数值
@@ -183,7 +183,7 @@ public class TDengineMapper {
     }
 
 
-    public <T> void batchInsertUsing(Class<T> clazz, List<T> entityList, int pageSize, AbstractDynamicNameStrategy dynamicTbNameStrategy) {
+    public <T> void batchInsertUsing(Class<T> clazz, List<T> entityList, int pageSize, DynamicNameStrategy dynamicTbNameStrategy) {
         // 获取超级表表名&所有字段
         Pair<String, List<Field>> tbNameAndFieldsPair = TdSqlUtil.getTbNameAndFieldListPair(clazz);
 

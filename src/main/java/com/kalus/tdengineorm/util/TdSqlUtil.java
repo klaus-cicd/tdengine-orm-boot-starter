@@ -14,7 +14,7 @@ import com.kalus.tdengineorm.enums.TdFieldTypeEnum;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
-import com.kalus.tdengineorm.strategy.AbstractDynamicNameStrategy;
+import com.kalus.tdengineorm.strategy.DynamicNameStrategy;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
@@ -44,7 +44,7 @@ public class TdSqlUtil {
                 .collect(SqlUtil.getColumnWithBracketCollector());
     }
 
-    public static String justGetInsertUsingSql(Object object, String sTbName, List<Field> fieldList, AbstractDynamicNameStrategy dynamicTbNameStrategy, Map<String, Object> map) {
+    public static String justGetInsertUsingSql(Object object, String sTbName, List<Field> fieldList, DynamicNameStrategy dynamicTbNameStrategy, Map<String, Object> map) {
         // 根据是否为TAG字段做分组
         Pair<List<Field>, List<Field>> fieldsPair = differentiateByTag(fieldList);
         // 获取TAGS字段名称&对应的值
@@ -57,7 +57,7 @@ public class TdSqlUtil {
     }
 
 
-    public static Pair<String, Map<String, Object>> getFinalInsertUsingSql(Object object, List<Field> fieldList, String sTbName, AbstractDynamicNameStrategy dynamicTbNameStrategy) {
+    public static Pair<String, Map<String, Object>> getFinalInsertUsingSql(Object object, List<Field> fieldList, String sTbName, DynamicNameStrategy dynamicTbNameStrategy) {
         Map<String, Object> paramsMap = new HashMap<>(fieldList.size());
 
         // 根据是否为TAG字段做分组

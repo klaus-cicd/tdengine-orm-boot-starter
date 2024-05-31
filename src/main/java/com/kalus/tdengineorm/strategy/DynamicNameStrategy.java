@@ -1,9 +1,12 @@
 package com.kalus.tdengineorm.strategy;
 
 /**
+ * 动态表名称策略
+ *
  * @author Silas
  */
-public abstract class AbstractDynamicNameStrategy {
+@FunctionalInterface
+public interface DynamicNameStrategy {
 
     /**
      * 动态表名生成
@@ -11,6 +14,6 @@ public abstract class AbstractDynamicNameStrategy {
      * @param tableName 原始表名
      * @return 根据策略修改后的表名
      */
-    public abstract String dynamicTableName(String tableName);
+    String dynamicTableName(String tableName);
 
 }
