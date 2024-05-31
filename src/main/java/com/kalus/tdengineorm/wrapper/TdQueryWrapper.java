@@ -137,18 +137,18 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     // }
 
     public TdQueryWrapper<T> or(String columnName, Object value) {
-        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.OR);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.OR);
         return this;
     }
 
     public TdQueryWrapper<T> ne(String columnName, Object value) {
-        addWhereParam(value, columnName, columnName, SqlConstant.NE);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.NE);
         return this;
     }
 
 
     public TdQueryWrapper<T> notNull(String columnName, Object value) {
-        addWhereParam(value, columnName, columnName, SqlConstant.IS_NOT_NULL);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.IS_NOT_NULL);
         return this;
     }
 
@@ -249,7 +249,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     public TdQueryWrapper<T> lt(String columnName, Object value) {
-        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.LT);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.LT);
         return this;
     }
 
@@ -259,7 +259,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     public TdQueryWrapper<T> le(String columnName, Object value) {
-        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.LE);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.LE);
         return this;
     }
 
@@ -269,7 +269,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     public TdQueryWrapper<T> gt(String columnName, Object value) {
-        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.GE);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.GE);
         return this;
     }
 
@@ -279,7 +279,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     public TdQueryWrapper<T> ge(String columnName, Object value) {
-        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.GT);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.GT);
         return this;
     }
 
@@ -289,7 +289,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     public TdQueryWrapper<T> like(String columnName, Object value) {
-        addWhereParam(value, columnName, getParamName(columnName), SqlConstant.LIKE);
+        addWhereParam(value, columnName, genParamName(), SqlConstant.LIKE);
         return this;
     }
 
@@ -311,8 +311,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
             where.append(SqlConstant.AND);
         }
 
-        String leftParamName = getParamName(columnName + "__left");
-        String rightParamName = getParamName(columnName + "__right");
+        String leftParamName = genParamName();
+        String rightParamName = genParamName();
 
         where
                 .append(SqlConstant.LEFT_BRACKET)
@@ -342,17 +342,6 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
      */
     public TdQueryWrapper<T> between(GetterFunction<T, ?> getterFunc, Object leftValue, Object rightValue) {
         return between(getColumnName(getterFunc), leftValue, rightValue);
-    }
-
-    private String getParamName(String fieldName) {
-        int index = 0;
-        while (true) {
-            if (where.toString().contains(SqlConstant.COLON + buildParam(fieldName, index))) {
-                ++index;
-            } else {
-                return buildParam(fieldName, index);
-            }
-        }
     }
 
     private String buildParam(String fieldName, int index) {

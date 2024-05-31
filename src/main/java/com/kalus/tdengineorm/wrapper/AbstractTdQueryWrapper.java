@@ -31,11 +31,6 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
      */
     protected AbstractTdQueryWrapper<T> innerQueryWrapper;
 
-    /**
-     * 当前层, 最内层为0, 向上递增
-     */
-    protected int layer;
-
     public AbstractTdQueryWrapper(Class<T> entityClass) {
         super(entityClass);
     }

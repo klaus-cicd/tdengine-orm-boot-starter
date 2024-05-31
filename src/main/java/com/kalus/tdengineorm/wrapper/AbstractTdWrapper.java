@@ -32,6 +32,10 @@ public abstract class AbstractTdWrapper<T> {
     @Getter
     @Setter
     private Map<String, Object> paramsMap = new HashMap<>(16);
+    /**
+     * 当前层, 最内层为0, 向上递增
+     */
+    protected int layer;
 
 
     public AbstractTdWrapper(Class<T> entityClass) {
@@ -68,6 +72,6 @@ public abstract class AbstractTdWrapper<T> {
     }
 
     protected String genParamName() {
-        return TdSqlConstant.MAP_PARAM_NAME_PREFIX + getParamNameSeq();
+        return TdSqlConstant.MAP_PARAM_NAME_PREFIX + layer + "_" + getParamNameSeq();
     }
 }
