@@ -58,6 +58,11 @@ public enum TdOrmExceptionCode implements ExceptionCode {
      * 参数值不能为空
      */
     PARAM_VALUE_CANT_NOT_BE_NULL(70011, "Parameter value cannot be null!"),
+
+    /**
+     * 多次调用GroupBy
+     */
+    MULTI_GROUP_BY(70012, "Call GroupBy multiple times!"),
     ;
 
     private final Integer code;

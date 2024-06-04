@@ -41,4 +41,5 @@ public class SqlConstant {
     public static final String SUM = " SUM";
     public static final String IS_NOT_NULL = " IS NOT NULL ";
     public static final String IN = " IN ";
+    public static final String GROUP_BY = " GROUP BY ";
 }

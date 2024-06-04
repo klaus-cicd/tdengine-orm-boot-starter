@@ -435,4 +435,18 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return condition ? between(getterFunc, leftValue, rightValue) : this;
     }
 
+
+    public TdQueryWrapper<T> groupBy(String columnName) {
+        if (StrUtil.isNotBlank(groupBy)) {
+            throw new TdOrmException(TdOrmExceptionCode.MULTI_GROUP_BY);
+        }
+        groupBy = SqlConstant.GROUP_BY + columnName + SqlConstant.BLANK;
+        return this;
+    }
+
+
+    public TdQueryWrapper<T> groupBy(GetterFunction<T, ?> getterFunction) {
+        return groupBy(getColumnName(getterFunction));
+    }
+
 }

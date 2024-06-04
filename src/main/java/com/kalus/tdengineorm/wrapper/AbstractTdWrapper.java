@@ -2,7 +2,6 @@ package com.kalus.tdengineorm.wrapper;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kalus.tdengineorm.constant.SqlConstant;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
@@ -10,7 +9,6 @@ import com.kalus.tdengineorm.enums.TdWrapperTypeEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.core.env.Environment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,11 +54,6 @@ public abstract class AbstractTdWrapper<T> {
             name = StrUtil.toUnderlineCase(entityClass.getSimpleName());
         }
         tbName = name;
-    }
-
-    public String getLogLevel() {
-        Environment environment = SpringUtil.getBean(Environment.class);
-        return environment.getProperty("td-orm.log-level");
     }
 
     protected Integer getParamNameSeq() {

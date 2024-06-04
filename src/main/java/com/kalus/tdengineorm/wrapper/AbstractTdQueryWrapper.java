@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
 
     protected String limit;
+    protected String groupBy;
     protected String[] selectColumnNames;
     protected String windowFunc;
     protected SelectCalcWrapper<T> selectCalcWrapper;
@@ -59,6 +60,9 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         }
         if (StrUtil.isNotBlank(windowFunc)) {
             finalSql.append(windowFunc);
+        }
+        if (StrUtil.isNotBlank(groupBy)) {
+            finalSql.append(groupBy);
         }
         if (StrUtil.isNotBlank(orderBy)) {
             finalSql.append(orderBy);
