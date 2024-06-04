@@ -126,6 +126,19 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return eq(getColumnName(getterFunc), value);
     }
 
+
+    public TdQueryWrapper<T> eq(boolean condition, String columnName, Object value) {
+        if (condition) {
+            addWhereParam(value, columnName, genParamName(), SqlConstant.EQUAL);
+        }
+        return this;
+    }
+
+
+    public TdQueryWrapper<T> eq(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? eq(getColumnName(getterFunc), value) : this;
+    }
+
     public TdQueryWrapper<T> and() {
         this.where.append(SqlConstant.BLANK).append(SqlConstant.AND).append(SqlConstant.BLANK);
         return this;
@@ -141,9 +154,28 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
+    public TdQueryWrapper<T> or(boolean condition, String columnName, Object value) {
+        if (condition) {
+            addWhereParam(value, columnName, genParamName(), SqlConstant.OR);
+        }
+        return this;
+    }
+
     public TdQueryWrapper<T> ne(String columnName, Object value) {
         addWhereParam(value, columnName, genParamName(), SqlConstant.NE);
         return this;
+    }
+
+    public TdQueryWrapper<T> ne(GetterFunction<T, ?> getterFunc, Object value) {
+        return ne(getColumnName(getterFunc), value);
+    }
+
+    public TdQueryWrapper<T> ne(boolean condition, String columnName, Object value) {
+        return condition ? ne(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> ne(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? ne(getColumnName(getterFunc), value) : this;
     }
 
 
@@ -152,6 +184,17 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
+    public TdQueryWrapper<T> notNull(boolean condition, String columnName, Object value) {
+        return condition ? notNull(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> notNull(GetterFunction<T, ?> getterFunc, Object value) {
+        return notNull(getColumnName(getterFunc), value);
+    }
+
+    public TdQueryWrapper<T> notNull(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? notNull(getColumnName(getterFunc), value) : this;
+    }
 
     public TdQueryWrapper<T> stateWindow(String column) {
         doWindowFunc(TdWindFuncTypeEnum.STATE_WINDOW, column);
@@ -179,33 +222,6 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-
-    // public TdQueryWrapper<T> and(Consumer<LambdaTdQueryWrapper<T>> consumer) {
-    //     consumer.accept(this);
-    //     return this;
-    // }
-
-
-    public TdQueryWrapper<T> ne(GetterFunction<T, ?> getterFunc, Object value) {
-        return ne(getColumnName(getterFunc), value);
-    }
-
-
-    public TdQueryWrapper<T> notNull(GetterFunction<T, ?> getterFunc, Object value) {
-        return notNull(getColumnName(getterFunc), value);
-    }
-
-    public TdQueryWrapper<T> intervalWindow(String interval) {
-        doWindowFunc(TdWindFuncTypeEnum.INTERVAL, interval);
-        return this;
-    }
-
-
-    public TdQueryWrapper<T> stateWindow(GetterFunction<T, ?> getterFunc) {
-        return stateWindow(getColumnName(getterFunc));
-    }
-
-
     public TdQueryWrapper<T> orderByAsc(GetterFunction<T, ?> getterFunc) {
         return orderByAsc(getColumnName(getterFunc));
     }
@@ -223,14 +239,33 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return orderByDesc(getColumnName(getterFunc));
     }
 
-    public TdQueryWrapper<T> in(String columnName, List<Object> values) {
-        doIn(columnName, values);
+    public TdQueryWrapper<T> intervalWindow(String interval) {
+        doWindowFunc(TdWindFuncTypeEnum.INTERVAL, interval);
         return this;
     }
 
-    public TdQueryWrapper<T> in(GetterFunction<T, ?> column, List<Object> values) {
-        doIn(getColumnName(column), values);
+
+    public TdQueryWrapper<T> stateWindow(GetterFunction<T, ?> getterFunc) {
+        return stateWindow(getColumnName(getterFunc));
+    }
+
+
+    public TdQueryWrapper<T> in(String columnName, Object... valueArray) {
+        doIn(columnName, valueArray);
         return this;
+    }
+
+    public TdQueryWrapper<T> in(GetterFunction<T, ?> column, Object... valueArray) {
+        doIn(getColumnName(column), valueArray);
+        return this;
+    }
+
+    public TdQueryWrapper<T> in(boolean condition, String columnName, Object... valueArray) {
+        return condition ? in(columnName, valueArray) : this;
+    }
+
+    public TdQueryWrapper<T> in(boolean condition, GetterFunction<T, ?> column, Object... valueArray) {
+        return condition ? in(column, valueArray) : this;
     }
 
 
@@ -267,6 +302,14 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return lt(getColumnName(getterFunc), value);
     }
 
+    public TdQueryWrapper<T> lt(boolean condition, String columnName, Object value) {
+        return condition ? lt(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> lt(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? lt(getterFunc, value) : this;
+    }
+
 
     public TdQueryWrapper<T> le(String columnName, Object value) {
         addWhereParam(value, columnName, genParamName(), SqlConstant.LE);
@@ -277,6 +320,13 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return le(getColumnName(getterFunc), value);
     }
 
+    public TdQueryWrapper<T> le(boolean condition, String columnName, Object value) {
+        return condition ? le(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> le(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? le(getterFunc, value) : this;
+    }
 
     public TdQueryWrapper<T> gt(String columnName, Object value) {
         addWhereParam(value, columnName, genParamName(), SqlConstant.GE);
@@ -288,6 +338,14 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
 
+    public TdQueryWrapper<T> gt(boolean condition, String columnName, Object value) {
+        return condition ? gt(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> gt(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? gt(getterFunc, value) : this;
+    }
+
     public TdQueryWrapper<T> ge(String columnName, Object value) {
         addWhereParam(value, columnName, genParamName(), SqlConstant.GT);
         return this;
@@ -297,6 +355,13 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return ge(getColumnName(getterFunc), value);
     }
 
+    public TdQueryWrapper<T> ge(boolean condition, String columnName, Object value) {
+        return condition ? ge(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> ge(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? ge(getterFunc, value) : this;
+    }
 
     public TdQueryWrapper<T> like(String columnName, Object value) {
         addWhereParam(value, columnName, genParamName(), SqlConstant.LIKE);
@@ -305,6 +370,14 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
     public TdQueryWrapper<T> like(GetterFunction<T, ?> getterFunc, Object value) {
         return like(getColumnName(getterFunc), value);
+    }
+
+    public TdQueryWrapper<T> like(boolean condition, String columnName, Object value) {
+        return condition ? like(columnName, value) : this;
+    }
+
+    public TdQueryWrapper<T> like(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
+        return condition ? like(getterFunc, value) : this;
     }
 
 
@@ -342,6 +415,10 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
+    public TdQueryWrapper<T> between(boolean condition, String columnName, Object leftValue, Object rightValue) {
+        return condition ? between(columnName, leftValue, rightValue) : this;
+    }
+
     /**
      * 左闭右开区间范围
      *
@@ -354,7 +431,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return between(getColumnName(getterFunc), leftValue, rightValue);
     }
 
-    private String buildParam(String fieldName, int index) {
-        return fieldName + SqlConstant.UNDERLINE + SqlConstant.UNDERLINE + layer + SqlConstant.UNDERLINE + index;
+    public TdQueryWrapper<T> between(boolean condition, GetterFunction<T, ?> getterFunc, Object leftValue, Object rightValue) {
+        return condition ? between(getterFunc, leftValue, rightValue) : this;
     }
+
 }
