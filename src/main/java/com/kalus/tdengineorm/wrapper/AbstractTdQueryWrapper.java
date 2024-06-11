@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Klaus
@@ -174,18 +173,17 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         checkHasWhere();
 
         Map<String, Object> paramsMap = getParamsMap();
-        String finalInColumnsStr = Stream.of(valueArray).map(value -> {
-            String paramName = genParamName();
-            paramsMap.put(paramName, value);
-            return SqlConstant.COLON + paramName;
-        }).collect(SqlUtil.getParenthesisCollector());
+        String finalInColumnsStr = Arrays.stream(valueArray)
+                .map(value -> {
+                    String paramName = genParamName();
+                    paramsMap.put(paramName, value);
+                    return SqlConstant.COLON + paramName;
+                }).collect(SqlUtil.getParenthesisCollector());
 
         where
                 .append(columnName)
                 .append(SqlConstant.IN)
-                .append(SqlConstant.LEFT_BRACKET)
                 .append(finalInColumnsStr)
-                .append(SqlConstant.RIGHT_BRACKET)
                 .append(SqlConstant.BLANK);
     }
 }
