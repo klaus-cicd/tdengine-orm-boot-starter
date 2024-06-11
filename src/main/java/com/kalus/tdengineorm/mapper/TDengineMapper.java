@@ -6,12 +6,13 @@ import cn.hutool.json.JSONUtil;
 import com.kalus.tdengineorm.annotation.TdTag;
 import com.kalus.tdengineorm.constant.SqlConstant;
 import com.kalus.tdengineorm.constant.TdSqlConstant;
+import com.kalus.tdengineorm.dto.Page;
 import com.kalus.tdengineorm.entity.BaseTdEntity;
 import com.kalus.tdengineorm.enums.TdLogLevelEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
-import com.kalus.tdengineorm.strategy.DynamicNameStrategy;
 import com.kalus.tdengineorm.strategy.DefaultDynamicNameStrategy;
+import com.kalus.tdengineorm.strategy.DynamicNameStrategy;
 import com.kalus.tdengineorm.util.*;
 import com.kalus.tdengineorm.wrapper.AbstractTdQueryWrapper;
 import com.kalus.tdengineorm.wrapper.TdQueryWrapper;
@@ -94,6 +95,24 @@ public class TDengineMapper {
 
     public <T, R> List<R> list(AbstractTdQueryWrapper<T> wrapper, Class<R> resultClass) {
         return listWithTdLog(wrapper.getSql(), wrapper.getParamsMap(), resultClass);
+    }
+
+    public <T> Page<T> page(long pageNo, long pageSize, TdQueryWrapper<T> wrapper) {
+        return page(pageNo, pageSize, wrapper, wrapper.getEntityClass());
+    }
+
+    public <R> Page<R> page(long pageNo, long pageSize, TdQueryWrapper<R> wrapper, Class<R> resultClass) {
+        String countSql = "select count(*) from (" + wrapper.getSql() + ") t";
+        Long count = namedParameterJdbcTemplate.queryForObject(countSql, wrapper.getParamsMap(), Long.class);
+        Page<R> page = Page.<R>builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .total(count).build();
+        if (count != null && count > 0) {
+            List<R> list = list(wrapper, resultClass);
+            page.setDataList(list);
+        }
+        return page;
     }
 
     /**
