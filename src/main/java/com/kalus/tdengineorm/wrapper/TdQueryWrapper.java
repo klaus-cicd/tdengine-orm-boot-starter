@@ -382,7 +382,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
 
     /**
-     * 左闭右开区间范围
+     * 左闭右闭区间范围
      *
      * @param columnName 列名
      * @param leftValue  左区间值
@@ -403,7 +403,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
                 .append(SqlConstant.LE)
                 .append(SqlConstant.COLON)
                 .append(leftParamName)
-                .append(SqlConstant.OR)
+                .append(SqlConstant.AND)
                 .append(columnName)
                 .append(SqlConstant.GT)
                 .append(SqlConstant.COLON)
@@ -420,7 +420,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     /**
-     * 左闭右开区间范围
+     * 左闭右闭区间范围
      *
      * @param getterFunc get方法
      * @param leftValue  左区间值
