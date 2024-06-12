@@ -101,7 +101,7 @@ public class TDengineMapper {
         return page(pageNo, pageSize, wrapper, wrapper.getEntityClass());
     }
 
-    public <R> Page<R> page(long pageNo, long pageSize, TdQueryWrapper<R> wrapper, Class<R> resultClass) {
+    public <T, R> Page<R> page(long pageNo, long pageSize, TdQueryWrapper<T> wrapper, Class<R> resultClass) {
         String countSql = "select count(*) from (" + wrapper.getSql() + ") t";
         Long count = namedParameterJdbcTemplate.queryForObject(countSql, wrapper.getParamsMap(), Long.class);
         Page<R> page = Page.<R>builder()
@@ -109,7 +109,7 @@ public class TDengineMapper {
                 .pageSize(pageSize)
                 .total(count).build();
         if (count != null && count > 0) {
-            List<R> list = list(wrapper, resultClass);
+            List<R> list = listWithTdLog(wrapper.getSql(), wrapper.getParamsMap(), resultClass);
             page.setDataList(list);
         }
         return page;
