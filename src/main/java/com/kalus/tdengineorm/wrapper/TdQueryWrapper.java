@@ -364,7 +364,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
     }
 
     public TdQueryWrapper<T> like(String columnName, Object value) {
-        addWhereParam(value, columnName, genParamName(), SqlConstant.LIKE);
+        addWhereParam(StrUtil.format("%{}%", value), columnName, genParamName(), SqlConstant.LIKE);
         return this;
     }
 
