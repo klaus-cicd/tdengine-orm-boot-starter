@@ -3,6 +3,7 @@ package com.kalus.tdengineorm.wrapper;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.kalus.tdengineorm.constant.SqlConstant;
+import com.kalus.tdengineorm.enums.JoinTypeEnum;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
@@ -206,7 +207,7 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         if (StrUtil.isNotBlank(orderBy)) {
             orderBy.append(SqlConstant.COMMA);
         }
-        orderBy.append(columnName);
+        orderBy.append(SqlConstant.ORDER_BY).append(columnName);
         return this;
     }
 
