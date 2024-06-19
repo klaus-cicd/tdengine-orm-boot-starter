@@ -88,4 +88,38 @@ public class ClassUtil {
         }
         return allFields.stream().map(Field::getName).collect(Collectors.toList());
     }
+
+    /**
+     * @param name
+     * @param classLoader 类装入器
+     * @return {@link Class }<{@link ? }>
+     */
+    public static Class<?> toClassConfident(String name, ClassLoader classLoader) {
+        try {
+            return loadClass(name, getClassLoaders(classLoader));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failed to load class: " + name, e);
+        }
+    }
+
+    private static Class<?> loadClass(String className, ClassLoader[] classLoaders) throws ClassNotFoundException {
+        for (ClassLoader classLoader : classLoaders) {
+            if (classLoader != null) {
+                try {
+                    return Class.forName(className, true, classLoader);
+                } catch (ClassNotFoundException e) {
+                    // ignore
+                }
+            }
+        }
+        throw new ClassNotFoundException("Cannot find class: " + className);
+    }
+
+    private static ClassLoader[] getClassLoaders(ClassLoader classLoader) {
+        return new ClassLoader[]{
+                classLoader,
+                Thread.currentThread().getContextClassLoader(),
+                ClassUtil.class.getClassLoader(),
+        };
+    }
 }

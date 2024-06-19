@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,11 +98,11 @@ public class TDengineMapper {
         return listWithTdLog(wrapper.getSql(), wrapper.getParamsMap(), resultClass);
     }
 
-    public <T> Page<T> page(long pageNo, long pageSize, TdQueryWrapper<T> wrapper) {
+    public <T extends BaseTdEntity> Page<T> page(long pageNo, long pageSize, TdQueryWrapper<T> wrapper) {
         return page(pageNo, pageSize, wrapper, wrapper.getEntityClass());
     }
 
-    public <T, R> Page<R> page(long pageNo, long pageSize, TdQueryWrapper<T> wrapper, Class<R> resultClass) {
+    public <T extends BaseTdEntity, R> Page<R> page(long pageNo, long pageSize, TdQueryWrapper<T> wrapper, Class<R> resultClass) {
         String countSql = "select count(*) from (" + wrapper.getSql() + ") t";
         Long count = namedParameterJdbcTemplate.queryForObject(countSql, wrapper.getParamsMap(), Long.class);
         Page<R> page = Page.<R>builder()
@@ -193,11 +194,12 @@ public class TDengineMapper {
 
         String finalSql = TdSqlConstant.CREATE_STABLE + SqlUtil.getTbName(clazz) + TdSqlUtil.buildCreateColumn(commFieldList, primaryTsField);
         List<Field> tagFieldList = fieldListPairByTag.getKey();
-        if (!CollectionUtils.isEmpty(tagFieldList)) {
-            String tagColumnSql = TdSqlUtil.buildCreateColumn(tagFieldList, null);
-            finalSql += SqlConstant.BLANK + TdSqlConstant.TAGS + tagColumnSql;
-        }
 
+        if (CollectionUtils.isEmpty(tagFieldList)) {
+            throw new TdOrmException(TdOrmExceptionCode.NO_TAG_FIELD);
+        }
+        String tagColumnSql = TdSqlUtil.buildCreateColumn(tagFieldList, null);
+        finalSql += SqlConstant.BLANK + TdSqlConstant.TAGS + tagColumnSql;
         return updateWithTdLog(finalSql, new HashMap<>(0));
     }
 
@@ -230,6 +232,22 @@ public class TDengineMapper {
                 log.debug("{} =====execute result====>{}", finalSql, result);
             }
         }
+    }
+
+    public <T extends BaseTdEntity> int deleteByTs(Class<T> clazz, Timestamp ts) {
+        String tbName = SqlUtil.getTbName(clazz);
+        String sql = "DELETE FROM " + tbName + " WHERE ts = :ts";
+        Map<String, Object> paramsMap = new HashMap<>(1);
+        paramsMap.put("ts", ts);
+        return namedParameterJdbcTemplate.update(sql, paramsMap);
+    }
+
+    public <T extends BaseTdEntity> int batchDeleteByTs(Class<T> clazz, List<Timestamp> tsList) {
+        String tbName = SqlUtil.getTbName(clazz);
+        String sql = "DELETE FROM " + tbName + " WHERE ts IN (:tsList)";
+        Map<String, Object> paramsMap = new HashMap<>(1);
+        paramsMap.put("tsList", tsList);
+        return namedParameterJdbcTemplate.update(sql, paramsMap);
     }
 
 

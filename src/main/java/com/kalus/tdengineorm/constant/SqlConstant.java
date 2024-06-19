@@ -42,4 +42,10 @@ public class SqlConstant {
     public static final String IS_NOT_NULL = " IS NOT NULL ";
     public static final String IN = " IN ";
     public static final String GROUP_BY = " GROUP BY ";
+    public static final String ON = " ON ";
+    public static final String LEFT = " LEFT ";
+    public static final String INNER = " INNER ";
+    public static final String RIGHT = " RIGHT ";
+    public static final String JOIN = " JOIN ";
+    public static final String DOT = ".";
 }

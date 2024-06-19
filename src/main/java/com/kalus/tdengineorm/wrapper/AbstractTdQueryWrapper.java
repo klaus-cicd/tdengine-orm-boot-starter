@@ -12,6 +12,7 @@ import com.kalus.tdengineorm.func.GetterFunction;
 import com.kalus.tdengineorm.util.AssertUtil;
 import com.kalus.tdengineorm.util.SqlUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
     protected String windowFunc;
     protected SelectCalcWrapper<T> selectCalcWrapper;
     protected final StringBuilder orderBy = new StringBuilder();
+    protected List<TdQueryWrapper.JoinQuery> joinQueryEntityList = new ArrayList<>();
     /**
      * 内层Wrapper对象
      */
@@ -43,34 +45,41 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
     }
 
     @Override
-    protected void buildFrom() {
+    protected void buildFrom(StringBuilder sql) {
         if (innerQueryWrapper != null) {
             String innerSql = innerQueryWrapper.getSql();
             this.tbName = " (" + innerSql + ") t" + layer + SqlConstant.BLANK;
         }
-        super.buildFrom();
+        super.buildFrom(sql);
     }
 
     public String getSql() {
-        buildSelect();
-        buildFrom();
+        StringBuilder sql = new StringBuilder();
+        buildSelect(sql);
+        buildFrom(sql);
+        joinQueryEntityList.forEach(joinQueryEntity -> {
+            sql
+                    .append(joinQueryEntity.getJoinType().getSql())
+                    .append(joinQueryEntity.getJoinTableName())
+                    .append(SqlConstant.ON)
+                    .append(joinQueryEntity.getJoinOnSql())
+                    .append(SqlConstant.BLANK);
+        });
+
         if (StrUtil.isNotBlank(where)) {
-            finalSql.append(SqlConstant.WHERE).append(where);
+            sql.append(SqlConstant.WHERE).append(where);
         }
         if (StrUtil.isNotBlank(windowFunc)) {
-            finalSql.append(windowFunc);
-        }
-        if (StrUtil.isNotBlank(groupBy)) {
-            finalSql.append(groupBy);
+            sql.append(windowFunc);
         }
         if (StrUtil.isNotBlank(orderBy)) {
-            finalSql.append(orderBy);
+            sql.append(orderBy);
         }
         if (StrUtil.isNotBlank(limit)) {
-            finalSql.append(limit);
+            sql.append(limit);
         }
 
-        return finalSql.toString();
+        return sql.toString();
     }
 
 
@@ -82,21 +91,20 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
         limit = SqlConstant.LIMIT + (pageNo - 1) + SqlConstant.COMMA + pageSize;
     }
 
-    private void buildSelect() {
+    private void buildSelect(StringBuilder sql) {
         AssertUtil.isTrue(ArrayUtil.isNotEmpty(selectColumnNames) || null != selectCalcWrapper, new TdOrmException(TdOrmExceptionCode.NO_SELECT));
-
-        finalSql.append(SqlConstant.SELECT);
+        sql.append(SqlConstant.SELECT);
         if (ArrayUtil.isNotEmpty(selectColumnNames)) {
             for (int i = 1; i <= selectColumnNames.length; i++) {
                 if (i > 1) {
-                    finalSql.append(SqlConstant.COMMA);
+                    sql.append(SqlConstant.COMMA);
                 }
-                finalSql.append(selectColumnNames[i - 1]);
+                sql.append(selectColumnNames[i - 1]);
             }
         }
 
         if (null != selectCalcWrapper) {
-            finalSql.append(selectCalcWrapper.getFinalSelectSql());
+            sql.append(selectCalcWrapper.getFinalSelectSql());
         }
     }
 

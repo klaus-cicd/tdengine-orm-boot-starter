@@ -14,21 +14,27 @@ import java.lang.reflect.Method;
 public class LambdaUtil {
 
     public static <T> String getFiledNameByGetter(GetterFunction<T, ?> getterFunc) {
+        SerializedLambda serializedLambda = getSerializedLambda(getterFunc);
+        String methodName = serializedLambda.getImplMethodName();
+        methodName = FieldUtil.getFieldNameByMethod(methodName);
+        return StrUtil.lowerFirst(methodName);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getEntityClass(GetterFunction<T, ?> getterFunc) {
+        String instantiatedMethodType = getSerializedLambda(getterFunc).getInstantiatedMethodType();
+        String instantiatedType = instantiatedMethodType.substring(2, instantiatedMethodType.indexOf(";")).replace("/", ".");
+        return (Class<T>) ClassUtil.toClassConfident(instantiatedType, getterFunc.getClass().getClassLoader());
+    }
+
+    private static <T> SerializedLambda getSerializedLambda(GetterFunction<T, ?> getterFunc) {
         try {
             Method method = getterFunc.getClass().getDeclaredMethod("writeReplace");
             method.setAccessible(true);
-            SerializedLambda serializedLambda = (SerializedLambda) method.invoke(getterFunc);
-            String methodName = serializedLambda.getImplMethodName();
-            if (methodName.startsWith("get")) {
-                methodName = methodName.substring(3);
-            } else if (methodName.startsWith("is")) {
-                methodName = methodName.substring(2);
-            }
-            return StrUtil.lowerFirst(methodName);
+            return (SerializedLambda) method.invoke(getterFunc);
         } catch (Exception e) {
             log.error("LambdaUtil#getFiledNameByGetterMethod error:{}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
-
 }

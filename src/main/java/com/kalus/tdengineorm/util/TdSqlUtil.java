@@ -15,6 +15,8 @@ import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.kalus.tdengineorm.strategy.DynamicNameStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
  * @author Klaus
  */
 public class TdSqlUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(TdSqlUtil.class);
 
     public static <T> String joinSqlValue(T entity, List<Field> fields, Map<String, Object> paramsMapList, int index) {
         Map<Boolean, List<Field>> fieldGroups = fields.stream()
@@ -113,6 +117,7 @@ public class TdSqlUtil {
         TdFieldTypeEnum type = null == tdField ? getColumnTypeByField(field) : tdField.type();
         if (type.isNeedLengthLimit()) {
             if (tdField == null || tdField.length() <= 0) {
+                log.warn("Field [{}] has no length limit.", field.getName());
                 throw new TdOrmException(TdOrmExceptionCode.FIELD_NO_LENGTH);
             }
             int length = tdField.length();

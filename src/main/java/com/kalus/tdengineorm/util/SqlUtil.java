@@ -319,6 +319,13 @@ public class SqlUtil {
         return fieldNameStr + SqlConstant.VALUES + fieldValueParamsStr;
     }
 
+    public static <T> String getColumnName(GetterFunction<T, ?> getterFunc) {
+        String fieldName = LambdaUtil.getFiledNameByGetter(getterFunc);
+        Field field = ClassUtil.getFieldByName(LambdaUtil.getEntityClass(getterFunc), fieldName);
+        String tableFiledAnnoValue = AnnotationUtil.getAnnotationValue(field, TableField.class, "value");
+        return StrUtil.isNotBlank(tableFiledAnnoValue) ? tableFiledAnnoValue : StrUtil.toUnderlineCase(fieldName);
+    }
+
     public static <T> String getColumnName(Class<T> tClass, GetterFunction<T, ?> getterFunc) {
         String fieldName = LambdaUtil.getFiledNameByGetter(getterFunc);
         Field field = ClassUtil.getFieldByName(tClass, fieldName);

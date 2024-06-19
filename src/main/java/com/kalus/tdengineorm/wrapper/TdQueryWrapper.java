@@ -3,16 +3,18 @@ package com.kalus.tdengineorm.wrapper;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.kalus.tdengineorm.constant.SqlConstant;
+import com.kalus.tdengineorm.entity.BaseTdEntity;
 import com.kalus.tdengineorm.enums.JoinTypeEnum;
 import com.kalus.tdengineorm.enums.TdSelectFuncEnum;
 import com.kalus.tdengineorm.enums.TdWindFuncTypeEnum;
 import com.kalus.tdengineorm.exception.TdOrmException;
 import com.kalus.tdengineorm.exception.TdOrmExceptionCode;
 import com.kalus.tdengineorm.func.GetterFunction;
-import com.kalus.tdengineorm.util.AssertUtil;
-import com.kalus.tdengineorm.util.ClassUtil;
-import com.kalus.tdengineorm.util.SqlUtil;
-import com.kalus.tdengineorm.util.TdSqlUtil;
+import com.kalus.tdengineorm.util.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -25,7 +27,7 @@ import java.util.function.Consumer;
  * @author Klaus
  * @date 2024/05/11
  */
-public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
+public class TdQueryWrapper<T extends BaseTdEntity> extends AbstractTdQueryWrapper<T> {
 
     public TdQueryWrapper(Class<T> entityClass) {
         super(entityClass);
@@ -49,16 +51,27 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    @SafeVarargs
-    public final TdQueryWrapper<T> select(GetterFunction<T, ?>... getterFuncArray) {
+    public TdQueryWrapper<T> select(GetterFunction<T, ?>... getterFuncArray) {
         if (ArrayUtil.isEmpty(getterFuncArray)) {
             throw new TdOrmException(TdOrmExceptionCode.NO_SELECT);
         }
 
         String[] fieldNameArray = Arrays.stream(getterFuncArray)
-                .map(this::getColumnName)
+                .map(getter -> tbName + SqlConstant.DOT + SqlUtil.getColumnName(getEntityClass(), getter))
                 .toArray(String[]::new);
+        addColumnNames(fieldNameArray);
+        return this;
+    }
 
+    public <R> TdQueryWrapper<T> select(Class<R> clazz, GetterFunction<R, ?>... getterFuncArray) {
+        if (ArrayUtil.isEmpty(getterFuncArray)) {
+            throw new TdOrmException(TdOrmExceptionCode.NO_SELECT);
+        }
+
+        String getterTbName = SqlUtil.getTbName(clazz);
+        String[] fieldNameArray = Arrays.stream(getterFuncArray)
+                .map(getter -> getterTbName + SqlConstant.DOT + SqlUtil.getColumnName(clazz, getter))
+                .toArray(String[]::new);
         addColumnNames(fieldNameArray);
         return this;
     }
@@ -111,8 +124,8 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
         return this;
     }
 
-    public <R> TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, GetterFunction<T, ?> column, Class<R> aliasClass, GetterFunction<R, ?> aliasColumn) {
-        selectFunc(selectFuncEnum, getColumnName(column), SqlUtil.getColumnName(aliasClass, aliasColumn));
+    public <R> TdQueryWrapper<T> selectFunc(TdSelectFuncEnum selectFuncEnum, GetterFunction<T, ?> column, GetterFunction<R, ?> aliasColumn) {
+        selectFunc(selectFuncEnum, getColumnName(column), SqlUtil.getColumnName(LambdaUtil.getEntityClass(aliasColumn), aliasColumn));
         return this;
     }
 
@@ -448,6 +461,37 @@ public class TdQueryWrapper<T> extends AbstractTdQueryWrapper<T> {
 
     public TdQueryWrapper<T> groupBy(GetterFunction<T, ?> getterFunction) {
         return groupBy(getColumnName(getterFunction));
+    }
+
+
+    /**
+     * 连表查询
+     * 根据TDengine目前的规范，连表查询仅支持主键使用“=”关联
+     *
+     * @param joinType       连接类型
+     * @param joinTableClass 连接表类
+     * @return {@link TdQueryWrapper }<{@link T }>
+     */
+    public <R extends BaseTdEntity> TdQueryWrapper<T> join(JoinTypeEnum joinType, Class<R> joinTableClass) {
+        String joinTbName = SqlUtil.getTbName(joinTableClass);
+        joinQueryEntityList.add(JoinQuery.builder()
+                .joinType(joinType)
+                .joinTableName(joinTbName)
+                .joinOnSql(joinTbName + SqlConstant.DOT + "ts" + SqlConstant.EQUAL + tbName + SqlConstant.DOT + "ts")
+                .build());
+
+        return this;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class JoinQuery {
+        private int index;
+        private JoinTypeEnum joinType;
+        private String joinTableName;
+        private String joinOnSql;
     }
 
 }

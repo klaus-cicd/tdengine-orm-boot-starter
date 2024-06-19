@@ -44,8 +44,8 @@ public abstract class AbstractTdWrapper<T> {
     protected abstract TdWrapperTypeEnum type();
 
 
-    protected void buildFrom() {
-        finalSql.append(SqlConstant.FROM).append(tbName).append(SqlConstant.BLANK);
+    protected void buildFrom(StringBuilder sql) {
+        sql.append(SqlConstant.FROM).append(tbName).append(SqlConstant.BLANK);
     }
 
     protected void initTbName() {

@@ -63,6 +63,10 @@ public enum TdOrmExceptionCode implements ExceptionCode {
      * 多次调用GroupBy
      */
     MULTI_GROUP_BY(70012, "Call GroupBy multiple times!"),
+    /**
+     * 缺少TAG字段
+     */
+    NO_TAG_FIELD(70013, "The super table must have a tag field!"),
     ;
 
     private final Integer code;
