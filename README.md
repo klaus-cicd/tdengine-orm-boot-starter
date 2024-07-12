@@ -10,7 +10,7 @@
 
 ## 快速开始
 
-1. 拉取改项目源码, 执行`mvn clean install` (或者推送到你自己的私仓)
+1. 拉取项目源码, 执行`mvn clean install` (或者推送到你自己的私仓)
 2. 下载Demo项目源码: [Demo项目仓库地址](https://github.com/klaus-cicd/tdengine-orm-demo)
 3. 修改Demo项目内配置文件内的连接配置, 创建对应的数据库(如果没有)
 4. 找到测试类, 按顺序依次执行测试方法
