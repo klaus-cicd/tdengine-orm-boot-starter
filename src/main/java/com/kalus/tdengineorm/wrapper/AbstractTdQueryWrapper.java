@@ -194,4 +194,13 @@ public abstract class AbstractTdQueryWrapper<T> extends AbstractTdWrapper<T> {
                 .append(finalInColumnsStr)
                 .append(SqlConstant.BLANK);
     }
+
+    protected void doNotNull(String columnName) {
+        if (StrUtil.isNotBlank(where)) {
+            where.append(SqlConstant.AND);
+        }
+        where
+                .append(columnName)
+                .append(SqlConstant.IS_NOT_NULL);
+    }
 }

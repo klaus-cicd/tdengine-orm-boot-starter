@@ -193,21 +193,21 @@ public class TdQueryWrapper<T extends BaseTdEntity> extends AbstractTdQueryWrapp
     }
 
 
-    public TdQueryWrapper<T> notNull(String columnName, Object value) {
-        addWhereParam(value, columnName, genParamName(), SqlConstant.IS_NOT_NULL);
+    public TdQueryWrapper<T> notNull(String columnName) {
+        doNotNull(columnName);
         return this;
     }
 
-    public TdQueryWrapper<T> notNull(boolean condition, String columnName, Object value) {
-        return condition ? notNull(columnName, value) : this;
+    public TdQueryWrapper<T> notNull(boolean condition, String columnName) {
+        return condition ? notNull(columnName) : this;
     }
 
-    public TdQueryWrapper<T> notNull(GetterFunction<T, ?> getterFunc, Object value) {
-        return notNull(getColumnName(getterFunc), value);
+    public TdQueryWrapper<T> notNull(GetterFunction<T, ?> getterFunc) {
+        return notNull(getColumnName(getterFunc));
     }
 
-    public TdQueryWrapper<T> notNull(boolean condition, GetterFunction<T, ?> getterFunc, Object value) {
-        return condition ? notNull(getColumnName(getterFunc), value) : this;
+    public TdQueryWrapper<T> notNull(boolean condition, GetterFunction<T, ?> getterFunc) {
+        return condition ? notNull(getColumnName(getterFunc)) : this;
     }
 
     public TdQueryWrapper<T> stateWindow(String column) {
