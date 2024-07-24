@@ -48,7 +48,7 @@ public class TdSqlUtil {
                 .collect(SqlUtil.getColumnWithBracketCollector());
     }
 
-    public static String justGetInsertUsingSql(Object object, String sTbName, List<Field> fieldList, DynamicNameStrategy dynamicTbNameStrategy, Map<String, Object> map) {
+    public static String getInsertUsingSqlPrefix(Object object, String sTbName, List<Field> fieldList, DynamicNameStrategy dynamicTbNameStrategy, Map<String, Object> map) {
         // 根据是否为TAG字段做分组
         Pair<List<Field>, List<Field>> fieldsPair = differentiateByTag(fieldList);
         // 获取TAGS字段名称&对应的值
@@ -56,8 +56,8 @@ public class TdSqlUtil {
         // 获取普通字段的名称
         String commFieldSql = SqlUtil.joinColumnNamesWithBracket(fieldsPair.getValue());
         // 根据策略生成表名
-        String childTbName = dynamicTbNameStrategy.dynamicTableName(sTbName);
-        return SqlConstant.INSERT_INTO + childTbName + TdSqlConstant.USING + sTbName + tagFieldSql + commFieldSql + SqlConstant.VALUES;
+        return SqlConstant.INSERT_INTO + dynamicTbNameStrategy.dynamicTableName(sTbName)
+                + TdSqlConstant.USING + sTbName + tagFieldSql + commFieldSql + SqlConstant.VALUES;
     }
 
 

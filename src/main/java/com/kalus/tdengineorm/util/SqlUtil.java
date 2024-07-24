@@ -71,6 +71,49 @@ public class SqlUtil {
 
 
     /**
+     * 获取插入到SQL前缀, 截止到VALUES
+     * <p>
+     * <p>
+     * 如 INSERT INFO tb_a (a,b,c,d) VALUES
+     *
+     * @param tbName 表名称
+     * @param fields 字段
+     * @return {@link StringBuilder }
+     */
+    public static StringBuilder getInsertIntoSqlPrefix(String tbName, List<Field> fields) {
+        return new StringBuilder(SqlConstant.INSERT_INTO)
+                .append(tbName)
+                .append(fields.stream().map(SqlUtil::getColumnName).collect(getColumnWithBracketCollector()))
+                .append(SqlConstant.VALUES);
+    }
+
+    /**
+     * 获取插入语句的VALUES后的后缀部分
+     * <p>
+     * <p>
+     * 例如 (:a, :b, :c)
+     *
+     * @param entity 需要入库的实体对象
+     * @param fields 字段
+     * @param index  目的是为了避免参数重复, 适用于需要批量插入的场景, 如只需要插入一行数据, 可以为任何值, 不过建议直接使用getInsertIntoSql方法
+     * @return {@link Pair }<{@link String }, {@link Map }<{@link String }, {@link Object }>> Key是SQL部分, Value是参数名称和参数值Map
+     */
+    public static <T> Pair<String, Map<String, Object>> getInsertSqlSuffix(T entity, List<Field> fields, int index) {
+        if (fields.isEmpty()) {
+            fields = ClassUtil.getAllFields(entity.getClass());
+        }
+        Map<String, Object> paramsMapList = new HashMap<>();
+        String suffixSql = fields.stream()
+                .map(field -> {
+                    String fieldName = field.getName();
+                    paramsMapList.put(fieldName + index, ReflectUtil.getFieldValue(entity, field));
+                    return ":" + fieldName + index;
+                })
+                .collect(getColumnWithBracketCollector());
+        return Pair.of(suffixSql, paramsMapList);
+    }
+
+    /**
      * 根据字段解析获取对应字段名和参数名部分SQL
      * 如 (column1, column2, column3) 和 (:param1, :param2, :param3) ON DUPLICATE KEY UPDATE column2 = :param2, column3 = :param3
      *

@@ -42,6 +42,7 @@ public class TDengineMapper {
 
     private final JdbcTemplatePlus jdbcTemplatePlus;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    public static final Integer DEFAULT_BATCH_SIZE = 1000;
 
     /**
      * 按ts字段倒叙, 获取最新的一条数据
@@ -154,12 +155,41 @@ public class TDengineMapper {
         return insertUsing(object, new DefaultDynamicNameStrategy());
     }
 
+
+    public <T> int[] batchInsert(Class<T> clazz, List<T> entityList, DynamicNameStrategy dynamicTbNameStrategy) {
+        return batchInsert(clazz, entityList, DEFAULT_BATCH_SIZE, dynamicTbNameStrategy);
+    }
+
+    public <T> int[] batchInsert(Class<T> clazz, List<T> entityList, int pageSize, DynamicNameStrategy dynamicTbNameStrategy) {
+        // 根据策略获取表名称
+        String tbName = dynamicTbNameStrategy.dynamicTableName(SqlUtil.getTbName(clazz));
+        // 不使用USING语法时, 不能指定TAG字段的值
+        List<Field> fieldList = ClassUtil.getAllFields(clazz, field -> !field.isAnnotationPresent(TdTag.class));
+        // 以防数据量过大, 分批进行插入
+        List<List<T>> partition = ListUtil.partition(entityList, pageSize);
+        int[] result = new int[partition.size()];
+
+        for (int i = 0; i < partition.size(); i++) {
+            List<T> list = partition.get(i);
+            Map<String, Object> paramsMap = new HashMap<>(list.size());
+            StringBuilder insertIntoSql = SqlUtil.getInsertIntoSqlPrefix(tbName, fieldList);
+            StringBuilder finalSql = new StringBuilder(insertIntoSql);
+            joinInsetSqlSuffix(list, finalSql, paramsMap);
+            int singleResult = namedParameterJdbcTemplate.update(finalSql.toString(), paramsMap);
+            if (log.isDebugEnabled()) {
+                log.debug("{} ===== execute result ====>{}", finalSql, singleResult);
+            }
+            result[i] = singleResult;
+        }
+        return result;
+    }
+
     public <T> void batchInsertUsing(Class<T> clazz, List<T> entityList) {
-        batchInsertUsing(clazz, entityList, 1000, new DefaultDynamicNameStrategy());
+        batchInsertUsing(clazz, entityList, DEFAULT_BATCH_SIZE, new DefaultDynamicNameStrategy());
     }
 
     public <T> void batchInsertUsing(Class<T> clazz, List<T> entityList, DynamicNameStrategy dynamicTbNameStrategy) {
-        batchInsertUsing(clazz, entityList, 1000, dynamicTbNameStrategy);
+        batchInsertUsing(clazz, entityList, DEFAULT_BATCH_SIZE, dynamicTbNameStrategy);
     }
 
     public int insertUsing(Object object, DynamicNameStrategy dynamicTbNameStrategy) {
@@ -221,12 +251,9 @@ public class TDengineMapper {
         for (List<T> list : partition) {
             Map<String, Object> paramsMap = new HashMap<>(list.size());
             paramsMap.putAll(tagValueMap);
-            StringBuilder finalSql = new StringBuilder(TdSqlUtil.justGetInsertUsingSql(t, tbNameAndFieldsPair.getKey(), tbNameAndFieldsPair.getValue(), dynamicTbNameStrategy, paramsMap));
-            for (int i = 0; i < list.size(); i++) {
-                T entity = list.get(i);
-                List<Field> fields = ClassUtil.getAllFields(entity.getClass());
-                finalSql.append(TdSqlUtil.joinSqlValue(entity, fields, paramsMap, i));
-            }
+            StringBuilder finalSql = new StringBuilder(TdSqlUtil.getInsertUsingSqlPrefix(t, tbNameAndFieldsPair.getKey(),
+                    tbNameAndFieldsPair.getValue(), dynamicTbNameStrategy, paramsMap));
+            joinInsetSqlSuffix(list, finalSql, paramsMap);
             int result = namedParameterJdbcTemplate.update(finalSql.toString(), paramsMap);
             if (log.isDebugEnabled()) {
                 log.debug("{} =====execute result====>{}", finalSql, result);
@@ -282,6 +309,16 @@ public class TDengineMapper {
     private <R> R getOneWithTdLog(Class<R> resultClass, String sql, Map<String, Object> paramsMap) {
         tdLog(sql, paramsMap);
         return jdbcTemplatePlus.get(sql, paramsMap, resultClass);
+    }
+
+    private static <T> void joinInsetSqlSuffix(List<T> list, StringBuilder finalSql, Map<String, Object> paramsMap) {
+        for (int i = 0; i < list.size(); i++) {
+            T entity = list.get(i);
+            List<Field> fields = ClassUtil.getAllFields(entity.getClass(), field -> !field.isAnnotationPresent(TdTag.class));
+            Pair<String, Map<String, Object>> insertSqlSuffix = SqlUtil.getInsertSqlSuffix(entity, fields, i);
+            finalSql.append(insertSqlSuffix.getKey());
+            paramsMap.putAll(insertSqlSuffix.getValue());
+        }
     }
 
 }
